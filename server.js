@@ -1,5 +1,5 @@
 /* =========================================================
-   ICHANCY WEBSITE - Full Server & Agent Integration
+   ICHANCY WEBSITE - Full Server (Fixed & Enhanced)
    ========================================================= */
 
 const express = require('express');
@@ -20,23 +20,12 @@ const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'database.db');
 const IS_PROD = process.env.NODE_ENV === 'production';
 const ADMIN_NAME = 'sam55namsam55namsam55nam';
 
-// =========================================================
-// ⚠️ قراءة بيانات المنصة من متغيرات البيئة
-// =========================================================
 const BASE_URL = process.env.ICHANCY_BASE_URL;
 const AGENT_USERNAME = process.env.ICHANCY_USER;
 const AGENT_PASSWORD = process.env.ICHANCY_PASS;
 const PARENT_ID = process.env.ICHANCY_PARENT_ID || '2699771';
 
-// طباعة الحالة في السجلات لسهولة التشخيص
 console.log(`🔧 [Config] BASE_URL: ${BASE_URL || '❌ غير معرف'}`);
-console.log(`🔧 [Config] AGENT_USER: ${AGENT_USERNAME ? '✅ معرف' : '❌ غير معرف'}`);
-console.log(`🔧 [Config] AGENT_PASS: ${AGENT_PASSWORD ? '✅ معرف' : '❌ غير معرف'}`);
-console.log(`🔧 [Config] PARENT_ID: ${PARENT_ID}`);
-
-if (!BASE_URL || !AGENT_USERNAME || !AGENT_PASSWORD) {
-  console.error('❌ [CRITICAL] بيانات المنصة (BASE_URL, USER, PASS) غير معرفة في متغيرات البيئة!');
-}
 
 // --- تهيئة قاعدة البيانات ---
 const dbDir = path.dirname(DB_PATH);
@@ -67,7 +56,6 @@ db.exec(`
   );
 `);
 
-// ترقية الجداول تلقائياً (في حال كانت موجودة من نسخة سابقة)
 try { db.exec(`ALTER TABLE users ADD COLUMN player_id TEXT;`); } catch (e) {}
 try { db.exec(`ALTER TABLE users ADD COLUMN platform_username TEXT;`); } catch (e) {}
 try { db.exec(`ALTER TABLE users ADD COLUMN platform_password TEXT;`); } catch (e) {}
@@ -76,13 +64,12 @@ const defaultSettings = { game_url: 'https://example.com', proxy_url: '' };
 const insertSetting = db.prepare('INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)');
 for (const [k, v] of Object.entries(defaultSettings)) insertSetting.run(k, v);
 
-// حذف المنشورات المنتهية (24 ساعة)
 setInterval(() => {
   try { db.prepare("DELETE FROM game_posts WHERE created_at <= datetime('now', '-24 hours')").run(); } catch (e) {}
 }, 60 * 60 * 1000);
 
 // =========================================================
-// 🤖 كلاس IChancyAgent (محول إلى Node.js)
+// 🤖 كلاس IChancyAgent
 // =========================================================
 class IChancyAgent {
   constructor() {
@@ -109,41 +96,23 @@ class IChancyAgent {
     }));
   }
 
-  rotateUserAgent() {
-    const agents = [
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15'
-    ];
-    this.client.defaults.headers.common['User-Agent'] = agents[Math.floor(Math.random() * agents.length)];
-  }
-
   async ensureLogin() {
     if (!this.BASE_URL) return false;
-
     const now = Date.now() / 1000;
-    if (this.authCache.loggedIn && (now - this.authCache.lastAuthTime) < this.authCache.cacheDuration) {
-      return true;
-    }
+    if (this.authCache.loggedIn && (now - this.authCache.lastAuthTime) < this.authCache.cacheDuration) return true;
 
     try {
-      this.rotateUserAgent();
       const res = await this.client.post(`${this.BASE_URL}/global/api/User/signIn`, {
-        username: this.USERNAME,
-        password: this.PASSWORD
+        username: this.USERNAME, password: this.PASSWORD
       });
 
       if (res.status === 200 && res.data?.status && res.data?.result?.message === 'dashboard') {
         this.loggedIn = true;
         this.authCache = { loggedIn: true, lastAuthTime: now, cacheDuration: 1800 };
-        console.log('✅ [Agent] Logged in successfully to:', this.BASE_URL);
         return true;
-      } else {
-        console.error('❌ [Agent] Login failed. Response:', JSON.stringify(res.data));
       }
     } catch (error) {
       console.error('❌ [Agent] Login Error:', error.message);
-      if (error.response) console.error('Response Data:', error.response.data);
     }
     return false;
   }
@@ -156,7 +125,6 @@ class IChancyAgent {
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
         if (!await this.ensureLogin()) return { error: "Login failed", status: "error" };
-
         const url = `${this.BASE_URL}${endpoint}`;
         let res = method === "POST" ? await this.client.post(url, payload) : await this.client.get(url);
         this.lastRequestTime = Date.now();
@@ -202,12 +170,17 @@ class IChancyAgent {
     });
     return result?.status === true || result?.status === "true";
   }
+
+  // 🆕 دالة إضافية لجلب رصيد الوكيل
+  async getAgentWallet() {
+    return this.makeRequest("/global/api/Agent/getAgentAllWallets", null, "GET");
+  }
 }
 
 const agent = new IChancyAgent();
 
 // =========================================================
-// 🌐 إعدادات Express والمصادقة
+// 🌐 Middleware
 // =========================================================
 app.set('trust proxy', 1);
 app.use(express.json());
@@ -228,7 +201,7 @@ function auth(req, res, next) {
 const isAdmin = (req, res, next) => req.user.role === 'admin' ? next() : res.status(403).json({ error: 'مخصص للإدارة' });
 
 // =========================================================
-// 🔑 API المصادقة (الموقع)
+// 🔑 APIs المصادقة
 // =========================================================
 app.post('/api/register', async (req, res) => {
   try {
@@ -263,34 +236,49 @@ app.post('/api/logout', (req, res) => { res.clearCookie('token').json({ ok: true
 app.get('/api/me', auth, (req, res) => res.json({ user: { ...req.user, hasAccount: !!req.user.player_id } }));
 
 // =========================================================
-// 🤝 API المنصة (الحقيقية)
+// 🤝 APIs المنصة
 // =========================================================
 
-// 1. إنشاء حساب في المنصة
+// 1. إنشاء حساب المنصة (تم التعديل: توليد الإيميل + التحقق الدقيق)
 app.post('/api/platform/create-account', auth, async (req, res) => {
   try {
     if (req.user.player_id) return res.status(400).json({ error: 'لديك حساب بالفعل' });
 
-    const { username, password, email } = req.body;
-    if (!username || !password || !email) return res.status(400).json({ error: 'جميع الحقول مطلوبة' });
+    const { username, password } = req.body;
+    if (!username || !password) return res.status(400).json({ error: 'اسم المستخدم وكلمة المرور مطلوبان' });
+
+    // 🆕 توليد الإيميل تلقائياً
+    const email = `${username}@user.com`;
 
     const result = await agent.registerPlayer(username, password, email);
     
-    if (result && result.status) {
-      // استخراج معرف اللاعب (بناءً على استجابة المنصة)
-      const playerId = result.result?.playerId || result.result?.id || result.result?.player?.id || username;
+    // 🆕 التحقق الدقيق من نجاح العملية بناءً على استجابة المنصة
+    if (result && result.status === true) {
+      // استخراج الـ ID من الاستجابة
+      let playerId = result.result?.id || result.result?.playerId || result.result?.player?.id;
       
+      // إذا لم يتم العثور على ID صريح، نقوم بالبحث عن اللاعب برقمه
+      if (!playerId && result.result?.playerName) {
+        playerId = result.result.playerName; 
+      }
+
+      if (!playerId) {
+        return res.status(400).json({ error: 'تم إنشاء الحساب ولكن فشل جلب رقم اللاعب من الاستجابة' });
+      }
+
       db.prepare('UPDATE users SET player_id = ?, platform_username = ?, platform_password = ? WHERE id = ?')
         .run(String(playerId), username, password, req.user.id);
 
       res.json({ ok: true, message: 'تم إنشاء الحساب في المنصة بنجاح' });
     } else {
-      res.status(400).json({ error: result?.message || 'فشل إنشاء الحساب في المنصة' });
+      // طباعة الخطأ في السجلات لمعرفة السبب
+      console.error('Platform Register Error:', JSON.stringify(result));
+      res.status(400).json({ error: result?.error?.message || result?.message || 'فشل إنشاء الحساب. قد يكون الاسم محجوزاً.' });
     }
   } catch (err) { res.status(500).json({ error: 'خطأ في الاتصال بالمنصة' }); }
 });
 
-// 2. تعبئة حسابي (إيداع)
+// 2. تعبئة حسابي
 app.post('/api/platform/deposit', auth, async (req, res) => {
   try {
     const amount = Number(req.body.amount);
@@ -310,17 +298,16 @@ app.post('/api/platform/deposit', auth, async (req, res) => {
     } else {
       res.status(400).json({ error: 'فشل الإيداع في المنصة' });
     }
-  } catch (err) { res.status(500).json({ error: 'خطأ في الاتصال بالمنصة' }); }
+  } catch (err) { res.status(500).json({ error: 'خطأ' }); }
 });
 
-// 3. سحب من حسابي (سحب)
+// 3. سحب من حسابي
 app.post('/api/platform/withdraw', auth, async (req, res) => {
   try {
     const amount = Number(req.body.amount);
     if (!amount || amount <= 0) return res.status(400).json({ error: 'مبلغ غير صالح' });
     if (!req.user.player_id) return res.status(400).json({ error: 'يجب إنشاء حساب في المنصة أولاً' });
 
-    // جلب رصيد المستخدم في المنصة
     const balanceRes = await agent.getPlayerBalance(req.user.player_id);
     const platformBalance = balanceRes?.result?.balance || balanceRes?.balance || 0;
 
@@ -336,11 +323,31 @@ app.post('/api/platform/withdraw', auth, async (req, res) => {
     } else {
       res.status(400).json({ error: 'فشل السحب من المنصة' });
     }
-  } catch (err) { res.status(500).json({ error: 'خطأ في الاتصال بالمنصة' }); }
+  } catch (err) { res.status(500).json({ error: 'خطأ' }); }
 });
 
 // =========================================================
-// 📋 باقي الـ APIs (السجلات، الإشعارات، الإعدادات)
+// 🆕 API الإدارة (فحص الاتصال ورصيد الوكيل)
+// =========================================================
+app.get('/api/admin/agent-status', auth, isAdmin, async (req, res) => {
+  try {
+    const loginSuccess = await agent.ensureLogin();
+    if (!loginSuccess) return res.status(400).json({ error: 'فشل الاتصال بالمنصة. تحقق من المتغيرات.' });
+
+    const walletData = await agent.getAgentWallet();
+    
+    if (walletData && walletData.status === true) {
+      res.json({ ok: true, message: 'الاتصال بالمنصة ناجح ✅', data: walletData.result });
+    } else {
+      res.status(400).json({ error: 'تم الاتصال ولكن فشل جلب المحفظة', details: walletData });
+    }
+  } catch (err) {
+    res.status(500).json({ error: 'خطأ أثناء فحص الاتصال' });
+  }
+});
+
+// =========================================================
+// 📋 باقي الـ APIs
 // =========================================================
 app.get('/api/notifications', auth, (req, res) => {
   const list = db.prepare('SELECT * FROM notifications WHERE user_id = ? ORDER BY id DESC LIMIT 50').all(req.user.id);
@@ -373,9 +380,7 @@ app.post('/api/admin/posts', auth, isAdmin, (req, res) => {
   res.json({ ok: true });
 });
 
-// توجيه أي مسار غير معروف إلى index.html
 app.get('*', (req, res, next) => { if (req.path.startsWith('/api/')) return next(); res.sendFile(path.join(__dirname, 'index.html')); });
 
-// تشغيل السيرفر
 const server = app.listen(PORT, '0.0.0.0', () => console.log(`🚀 ICHANCY running on port ${PORT}`));
 process.on('SIGTERM', () => server.close(() => process.exit(0)));

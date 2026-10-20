@@ -54,7 +54,6 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
 .dashboard { display:none; flex: 1; flex-direction: column; position:relative; z-index:10; width: 100%; padding-bottom: 70px; }
 .dashboard.active { display:flex; animation: fadeIn .4s ease; }
 
-/* الشريط العلوي */
 .topbar { min-height:60px; display:flex; align-items:center; justify-content:space-between; padding:10px 20px; background: rgba(10,14,30,.85); backdrop-filter: blur(20px); border-bottom:1px solid rgba(0,212,255,.2); position:sticky; top:0; z-index:100; flex-wrap: wrap; gap: 10px; box-shadow: 0 5px 20px rgba(0,0,0,.5); }
 .brand { display:flex; align-items:center; gap:10px; font-weight:900; font-size:18px; background: linear-gradient(90deg, #00d4ff, #fff, #a855f7, #00d4ff); background-size: 300% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: brandShine 3s linear infinite; filter: drop-shadow(0 0 5px rgba(0,212,255,.6)); }
 @keyframes brandShine { 0% { background-position: 0% center; } 100% { background-position: 300% center; } }
@@ -67,12 +66,10 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
 .admin-btn { background: rgba(255, 215, 0, 0.1); border:1px solid rgba(255, 215, 0, 0.4); color:#ffd700; padding:6px 12px; border-radius:8px; cursor:pointer; font-weight:700; font-size:12px; display:none; transition: .3s; }
 .admin-btn:hover { background: rgba(255, 215, 0, 0.2); box-shadow: 0 0 15px rgba(255,215,0,.4); }
 
-/* شريط الرصيد */
 .balance-bar { display:flex; align-items:center; justify-content:space-between; padding:6px 20px; background: rgba(10,14,30,.85); backdrop-filter: blur(20px); border-bottom:1px solid rgba(168,85,247,.2); position:sticky; top:60px; z-index:99; box-shadow: 0 5px 20px rgba(0,0,0,.5); }
 .balance-label { color:#8892b0; font-size:11px; font-weight:600; }
 .balance-value { font-size:20px; font-weight:900; background: linear-gradient(90deg,#00d4ff,#a855f7); -webkit-background-clip:text; -webkit-text-fill-color:transparent; filter: drop-shadow(0 0 10px rgba(0,212,255,.5)); }
 
-/* الإشعارات */
 .notif-wrap { position:relative; }
 .notif-btn { width:36px; height:36px; border-radius:10px; background: rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); color:#e6ecff; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; transition: .3s; }
 .notif-btn:hover { background: rgba(0,212,255,.1); border-color: #00d4ff; box-shadow: 0 0 15px rgba(0,212,255,.4); }
@@ -86,7 +83,6 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
 .btn-close-notif { width: 100%; padding: 10px; margin-top: 10px; background: rgba(255,255,255,.1); border: none; border-radius: 8px; color: #fff; font-weight: 700; cursor: pointer; transition: .3s; }
 .btn-close-notif:hover { background: rgba(255,255,255,.2); }
 
-/* منطقة الأزرار */
 .actions-zone { flex: 1; padding: 25px 15px; display: flex; align-items: flex-start; justify-content: center; }
 .actions-rect { width: 100%; max-width: 800px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 
@@ -109,14 +105,12 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
 .action-btn.take { background: rgba(34,197,94,.08); border:1px solid rgba(34,197,94,.4); color:#4ade80; }
 .action-btn.take:hover { background: #4ade80; color:#000; box-shadow: 0 0 20px rgba(34,197,94,.8); transform: scale(1.02); }
 
-/* الشريط السفلي */
 .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 70px; background: rgba(10,14,30,.95); backdrop-filter: blur(20px); border-top: 1px solid rgba(0,212,255,.2); display: flex; justify-content: space-around; align-items: center; z-index: 1000; padding: 0 10px; box-shadow: 0 -5px 20px rgba(0,0,0,.5); }
 .bnav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: transparent; border: none; color: #8892b0; font-size: 11px; font-weight: 700; cursor: pointer; transition: all .3s; width: 25%; }
 .bnav-btn .icon { font-size: 22px; transition: all .3s; }
 .bnav-btn:hover, .bnav-btn:active { color: #00d4ff; transform: translateY(-2px); }
 .bnav-btn:hover .icon { filter: drop-shadow(0 0 10px #00d4ff); }
 
-/* النوافذ المنبثقة */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.8); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 10000; padding: 15px; }
 .modal-overlay.open { display: flex; animation: fadeIn .3s ease; }
 .modal-content { background: rgba(15,18,35,.98); border: 1px solid rgba(0,212,255,.4); border-radius: 20px; width: 100%; max-width: 500px; padding: 25px; position: relative; box-shadow: 0 25px 50px rgba(0,0,0,.9), 0 0 30px rgba(0,212,255,.2); max-height: 90vh; overflow-y: auto; }
@@ -211,7 +205,6 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
 
   <div class="actions-zone">
     <div class="actions-rect">
-      <!-- حاوية المحفظة -->
       <div class="action-box">
         <div class="action-title">💰 محفظتي</div>
         <div class="btns">
@@ -219,7 +212,6 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
           <button id="btnMain2" class="action-btn withdraw" onclick="handleMainAction(2)">سحب</button>
         </div>
       </div>
-      <!-- حاوية التحويلات -->
       <div class="action-box">
         <div class="action-title">🔄 التحويلات</div>
         <div class="btns">
@@ -231,7 +223,6 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
   </div>
 </div>
 
-<!-- الشريط السفلي -->
 <div class="bottom-nav" id="bottomNav" style="display: none;">
   <button class="bnav-btn" onclick="openSupport()"><span class="icon">🎧</span><span>الدعم</span></button>
   <button class="bnav-btn" onclick="openGames()"><span class="icon">🎮</span><span>موقع الألعاب</span></button>
@@ -239,7 +230,6 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
   <button class="bnav-btn" onclick="openPosts()"><span class="icon">💎</span><span>إصابات العملات</span></button>
 </div>
 
-<!-- إطار الألعاب -->
 <div id="gameFrameContainer">
   <div class="game-header">
     <div style="font-weight:900; color:#00d4ff;">🎮 موقع الألعاب</div>
@@ -252,17 +242,16 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
 <div class="modal-overlay" id="modalCreatePlatform">
   <div class="modal-content">
     <div class="modal-header"><div class="modal-title">🔗 ربط حساب المنصة</div><button class="close-modal" onclick="closeModal('modalCreatePlatform')">X</button></div>
-    <p style="font-size: 13px; color: #8892b0; margin-bottom: 15px;">يجب إنشاء حساب في المنصة أولاً لتتمكن من تعبئة أو سحب الرصيد.</p>
+    <p style="font-size: 13px; color: #8892b0; margin-bottom: 15px;">سيتم إنشاء حسابك في المنصة تلقائياً باستخدام اسم المستخدم.</p>
     <div style="display: flex; flex-direction: column; gap: 15px;">
-      <div class="input-group"><input type="text" id="platUser" placeholder=" " required><label>اسم المستخدم في المنصة</label></div>
-      <div class="input-group"><input type="email" id="platEmail" placeholder=" " required><label>البريد الإلكتروني</label></div>
+      <div class="input-group"><input type="text" id="platUser" placeholder=" " required><label>اسم المستخدم (بالإنكليزية)</label></div>
       <div class="input-group"><input type="password" id="platPass" placeholder=" " required><label>كلمة المرور</label></div>
-      <button class="btn-primary" onclick="createPlatformAccount()">إنشاء الحساب</button>
+      <button class="btn-primary" onclick="createPlatformAccount()">إنشاء الحساب الآن</button>
     </div>
   </div>
 </div>
 
-<!-- باقي النوافذ (الدعم، السجلات، الإصابات، الإدارة) -->
+<!-- نافذة الدعم -->
 <div class="modal-overlay" id="modalSupport">
   <div class="modal-content">
     <div class="modal-header"><div class="modal-title">🎧 الدعم الفني</div><button class="close-modal" onclick="closeModal('modalSupport')">X</button></div>
@@ -274,6 +263,7 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
   </div>
 </div>
 
+<!-- نافذة السجلات -->
 <div class="modal-overlay" id="modalRecords">
   <div class="modal-content" style="max-width: 600px;">
     <div class="modal-header"><div class="modal-title">📄 سجلاتي</div><button class="close-modal" onclick="closeModal('modalRecords')">X</button></div>
@@ -286,6 +276,7 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
   </div>
 </div>
 
+<!-- نافذة إصابات العملات -->
 <div class="modal-overlay" id="modalPosts">
   <div class="modal-content">
     <div class="modal-header"><div class="modal-title">💎 إصابات العملات</div><button class="close-modal" onclick="closeModal('modalPosts')">X</button></div>
@@ -294,9 +285,17 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
   </div>
 </div>
 
+<!-- نافذة الإدارة (مع فحص الاتصال) -->
 <div class="modal-overlay" id="modalAdmin">
   <div class="modal-content">
     <div class="modal-header"><div class="modal-title">⚙️ لوحة الإدارة</div><button class="close-modal" onclick="closeModal('modalAdmin')">X</button></div>
+    
+    <div style="background: rgba(0,212,255,0.05); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(0,212,255,0.2);">
+      <h4 style="color:#00d4ff; margin-bottom: 10px; font-size: 14px;">🔍 فحص الاتصال بالمنصة</h4>
+      <button class="btn-primary" style="width: 100%; margin-bottom: 10px; padding: 10px; font-size: 13px;" onclick="checkAgentStatus()">فحص الاتصال وعرض رصيد الوكيل</button>
+      <div id="agentStatusResult" style="font-size: 13px; color: #8892b0; text-align: center;"></div>
+    </div>
+
     <div style="display: flex; flex-direction: column; gap: 15px;">
       <div class="input-group"><input type="text" id="adminGameUrl" placeholder=" "><label>رابط موقع الألعاب</label></div>
       <div class="input-group"><input type="text" id="adminProxyUrl" placeholder=" "><label>رابط البروكسي (اختياري)</label></div>
@@ -365,7 +364,6 @@ async function enterDashboard() {
   await loadNotifications();
 }
 
-// 🌟 تحديث الأزرار بناءً على حالة الحساب
 function updateButtons(hasAccount) {
   const b1 = $('#btnMain1'), b2 = $('#btnMain2'), b3 = $('#btnMain3'), b4 = $('#btnMain4');
   if (!hasAccount) {
@@ -381,21 +379,24 @@ function updateButtons(hasAccount) {
   }
 }
 
-// دالة إنشاء الحساب
 async function createPlatformAccount() {
   const username = $('#platUser').value.trim();
-  const email = $('#platEmail').value.trim();
   const password = $('#platPass').value;
-  if (!username || !email || !password) return alert('يرجى ملء جميع الحقول');
+  
+  if (!username || !password) return alert('يرجى إدخال اسم المستخدم وكلمة المرور');
+  if (username.includes('@')) return alert('اسم المستخدم يجب أن لا يحتوي على @');
+
   try {
-    await api('/api/platform/create-account', { method: 'POST', body: JSON.stringify({ username, password, email }) });
+    await api('/api/platform/create-account', { 
+      method: 'POST', 
+      body: JSON.stringify({ username, password }) 
+    });
     alert('تم ربط الحساب بنجاح!');
     closeModal('modalCreatePlatform');
     await enterDashboard();
   } catch (err) { alert(err.message); }
 }
 
-// دالة تنفيذ الإيداع والسحب
 async function doPlatformAction(type) {
   const val = prompt(type === 'deposit' ? 'أدخل المبلغ المراد إيداعه:' : 'أدخل المبلغ المراد سحبه:');
   if (!val) return;
@@ -408,7 +409,6 @@ async function doPlatformAction(type) {
   } catch (e) { alert(e.message); }
 }
 
-// باقي الدوال (النوافذ، الإشعارات، إلخ)
 async function loadNotifications() {
   const data = await api('/api/notifications');
   const badge = $('#notifBadge'), list = $('#notifList');
@@ -476,12 +476,37 @@ async function openAdminPanel() {
     $('#adminProxyUrl').value = s.proxy_url || '';
   } catch(e) {}
 }
+
+async function checkAgentStatus() {
+  const resDiv = $('#agentStatusResult');
+  resDiv.innerHTML = 'جاري الفحص... ⏳';
+  resDiv.style.color = '#ffd700';
+  try {
+    const data = await api('/api/admin/agent-status');
+    let html = `<div style="color: #4ade80; font-weight: bold; margin-bottom: 5px;">✅ ${data.message}</div>`;
+    if (Array.isArray(data.data)) {
+      data.data.forEach(wallet => {
+        html += `<div style="background: rgba(0,0,0,0.3); padding: 8px; border-radius: 5px; margin-top: 5px; display: flex; justify-content: space-between;">
+          <span>${wallet.currencyCode || 'NSP'}</span>
+          <span style="color:#00d4ff; font-weight:bold;">${wallet.balance || 0}</span>
+        </div>`;
+      });
+    } else if (typeof data.data === 'object') {
+      html += `<pre style="font-size: 10px; text-align: left; direction: ltr; max-height: 100px; overflow-y: auto;">${JSON.stringify(data.data, null, 2)}</pre>`;
+    }
+    resDiv.innerHTML = html;
+  } catch (err) {
+    resDiv.innerHTML = `<span style="color: #ff6b6b;">❌ ${err.message}</span>`;
+  }
+}
+
 async function saveAdminSettings() {
   try {
     await api('/api/admin/settings', { method: 'POST', body: JSON.stringify({ game_url: $('#adminGameUrl').value, proxy_url: $('#adminProxyUrl').value })});
     alert('تم الحفظ');
   } catch(e) { alert(e.message); }
 }
+
 async function addPost() {
   try {
     const url = $('#postUrl').value;

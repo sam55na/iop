@@ -1,5 +1,5 @@
 /* =========================================================
-   ICHANCY WEBSITE - Full Server (Fixed & Enhanced)
+   ICHANCY WEBSITE - Full Server & Agent Integration
    ========================================================= */
 
 const express = require('express');
@@ -12,6 +12,7 @@ const fs = require('fs');
 const axios = require('axios');
 const { wrapper } = require('axios-cookiejar-support');
 const { CookieJar } = require('tough-cookie');
+const cloudscraper = require('cloudscraper');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -20,12 +21,23 @@ const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'database.db');
 const IS_PROD = process.env.NODE_ENV === 'production';
 const ADMIN_NAME = 'sam55namsam55namsam55nam';
 
+// =========================================================
+// ⚠️ قراءة بيانات المنصة من متغيرات البيئة
+// =========================================================
 const BASE_URL = process.env.ICHANCY_BASE_URL;
 const AGENT_USERNAME = process.env.ICHANCY_USER;
 const AGENT_PASSWORD = process.env.ICHANCY_PASS;
 const PARENT_ID = process.env.ICHANCY_PARENT_ID || '2699771';
 
+// طباعة الحالة في السجلات لسهولة التشخيص
 console.log(`🔧 [Config] BASE_URL: ${BASE_URL || '❌ غير معرف'}`);
+console.log(`🔧 [Config] AGENT_USER: ${AGENT_USERNAME ? '✅ معرف' : '❌ غير معرف'}`);
+console.log(`🔧 [Config] AGENT_PASS: ${AGENT_PASSWORD ? '✅ معرف' : '❌ غير معرف'}`);
+console.log(`🔧 [Config] PARENT_ID: ${PARENT_ID}`);
+
+if (!BASE_URL || !AGENT_USERNAME || !AGENT_PASSWORD) {
+  console.error('❌ [CRITICAL] بيانات المنصة (BASE_URL, USER, PASS) غير معرفة في متغيرات البيئة!');
+}
 
 // --- تهيئة قاعدة البيانات ---
 const dbDir = path.dirname(DB_PATH);
@@ -102,14 +114,40 @@ class IChancyAgent {
     if (this.authCache.loggedIn && (now - this.authCache.lastAuthTime) < this.authCache.cacheDuration) return true;
 
     try {
-      const res = await this.client.post(`${this.BASE_URL}/global/api/User/signIn`, {
-        username: this.USERNAME, password: this.PASSWORD
+      console.log(`🔄 [Agent] محاولة تسجيل الدخول إلى: ${this.BASE_URL}`);
+      
+      const scraper = cloudscraper.createScraper();
+      
+      // 1. زيارة الصفحة الرئيسية أولاً (لتخطي الحماية وتوليد الكوكيز)
+      await scraper.get(`${this.BASE_URL}/sign-in`, { timeout: 30000 });
+      
+      // 2. إرسال بيانات الدخول
+      const loginRes = await scraper.post(`${this.BASE_URL}/global/api/User/signIn`, {
+        json: { username: this.USERNAME, password: this.PASSWORD },
+        headers: {
+          "Origin": this.BASE_URL,
+          "Referer": `${this.BASE_URL}/sign-in`,
+          "Content-Type": "application/json"
+        },
+        timeout: 30000
       });
 
-      if (res.status === 200 && res.data?.status && res.data?.result?.message === 'dashboard') {
+      const data = typeof loginRes.body === 'string' ? JSON.parse(loginRes.body) : loginRes.body;
+
+      if (loginRes.statusCode === 200 && data?.status && data?.result?.message === 'dashboard') {
         this.loggedIn = true;
         this.authCache = { loggedIn: true, lastAuthTime: now, cacheDuration: 1800 };
+        
+        // نسخ الكوكيز من cloudscraper إلى axios
+        const cookies = scraper.jar.getCookiesSync(this.BASE_URL);
+        cookies.forEach(cookie => {
+          this.jar.setCookieSync(cookie.toString(), this.BASE_URL);
+        });
+
+        console.log('✅ [Agent] Logged in successfully via Cloudscraper');
         return true;
+      } else {
+        console.error('❌ [Agent] Login failed. Response:', data);
       }
     } catch (error) {
       console.error('❌ [Agent] Login Error:', error.message);
@@ -126,7 +164,14 @@ class IChancyAgent {
       try {
         if (!await this.ensureLogin()) return { error: "Login failed", status: "error" };
         const url = `${this.BASE_URL}${endpoint}`;
-        let res = method === "POST" ? await this.client.post(url, payload) : await this.client.get(url);
+        
+        let res;
+        if (method === "POST") {
+          res = await this.client.post(url, payload);
+        } else {
+          res = await this.client.get(url);
+        }
+        
         this.lastRequestTime = Date.now();
 
         if (res.status === 200) {
@@ -139,6 +184,7 @@ class IChancyAgent {
         }
       } catch (err) {
         if (err.response?.status === 401) this.authCache.loggedIn = false;
+        console.error(`Request Error (${endpoint}):`, err.message);
         await new Promise(r => setTimeout(r, 2000));
       }
     }
@@ -171,7 +217,6 @@ class IChancyAgent {
     return result?.status === true || result?.status === "true";
   }
 
-  // 🆕 دالة إضافية لجلب رصيد الوكيل
   async getAgentWallet() {
     return this.makeRequest("/global/api/Agent/getAgentAllWallets", null, "GET");
   }
@@ -239,7 +284,7 @@ app.get('/api/me', auth, (req, res) => res.json({ user: { ...req.user, hasAccoun
 // 🤝 APIs المنصة
 // =========================================================
 
-// 1. إنشاء حساب المنصة (تم التعديل: توليد الإيميل + التحقق الدقيق)
+// 1. إنشاء حساب المنصة (توليد الإيميل + التحقق الدقيق)
 app.post('/api/platform/create-account', auth, async (req, res) => {
   try {
     if (req.user.player_id) return res.status(400).json({ error: 'لديك حساب بالفعل' });
@@ -247,17 +292,15 @@ app.post('/api/platform/create-account', auth, async (req, res) => {
     const { username, password } = req.body;
     if (!username || !password) return res.status(400).json({ error: 'اسم المستخدم وكلمة المرور مطلوبان' });
 
-    // 🆕 توليد الإيميل تلقائياً
+    // توليد الإيميل تلقائياً
     const email = `${username}@user.com`;
 
     const result = await agent.registerPlayer(username, password, email);
     
-    // 🆕 التحقق الدقيق من نجاح العملية بناءً على استجابة المنصة
+    // التحقق الدقيق من نجاح العملية
     if (result && result.status === true) {
-      // استخراج الـ ID من الاستجابة
       let playerId = result.result?.id || result.result?.playerId || result.result?.player?.id;
       
-      // إذا لم يتم العثور على ID صريح، نقوم بالبحث عن اللاعب برقمه
       if (!playerId && result.result?.playerName) {
         playerId = result.result.playerName; 
       }
@@ -271,7 +314,6 @@ app.post('/api/platform/create-account', auth, async (req, res) => {
 
       res.json({ ok: true, message: 'تم إنشاء الحساب في المنصة بنجاح' });
     } else {
-      // طباعة الخطأ في السجلات لمعرفة السبب
       console.error('Platform Register Error:', JSON.stringify(result));
       res.status(400).json({ error: result?.error?.message || result?.message || 'فشل إنشاء الحساب. قد يكون الاسم محجوزاً.' });
     }

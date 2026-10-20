@@ -20,11 +20,23 @@ const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'database.db');
 const IS_PROD = process.env.NODE_ENV === 'production';
 const ADMIN_NAME = 'sam55namsam55namsam55nam';
 
-// ⚠️ إعدادات المنصة (يجب تعديلها حسب بياناتك)
-const BASE_URL = process.env.ICHANCY_BASE_URL || 'https://example-platform.com';
-const AGENT_USERNAME = process.env.ICHANCY_USER || 'your_agent_username';
-const AGENT_PASSWORD = process.env.ICHANCY_PASS || 'your_agent_password';
+// =========================================================
+// ⚠️ قراءة بيانات المنصة من متغيرات البيئة
+// =========================================================
+const BASE_URL = process.env.ICHANCY_BASE_URL;
+const AGENT_USERNAME = process.env.ICHANCY_USER;
+const AGENT_PASSWORD = process.env.ICHANCY_PASS;
 const PARENT_ID = process.env.ICHANCY_PARENT_ID || '2699771';
+
+// طباعة الحالة في السجلات لسهولة التشخيص
+console.log(`🔧 [Config] BASE_URL: ${BASE_URL || '❌ غير معرف'}`);
+console.log(`🔧 [Config] AGENT_USER: ${AGENT_USERNAME ? '✅ معرف' : '❌ غير معرف'}`);
+console.log(`🔧 [Config] AGENT_PASS: ${AGENT_PASSWORD ? '✅ معرف' : '❌ غير معرف'}`);
+console.log(`🔧 [Config] PARENT_ID: ${PARENT_ID}`);
+
+if (!BASE_URL || !AGENT_USERNAME || !AGENT_PASSWORD) {
+  console.error('❌ [CRITICAL] بيانات المنصة (BASE_URL, USER, PASS) غير معرفة في متغيرات البيئة!');
+}
 
 // --- تهيئة قاعدة البيانات ---
 const dbDir = path.dirname(DB_PATH);
@@ -55,7 +67,7 @@ db.exec(`
   );
 `);
 
-// إضافة أعمدة جديدة في حال كان الجدول موجوداً (ترقية تلقائية)
+// ترقية الجداول تلقائياً (في حال كانت موجودة من نسخة سابقة)
 try { db.exec(`ALTER TABLE users ADD COLUMN player_id TEXT;`); } catch (e) {}
 try { db.exec(`ALTER TABLE users ADD COLUMN platform_username TEXT;`); } catch (e) {}
 try { db.exec(`ALTER TABLE users ADD COLUMN platform_password TEXT;`); } catch (e) {}
@@ -70,20 +82,18 @@ setInterval(() => {
 }, 60 * 60 * 1000);
 
 // =========================================================
-// 🤖 كلاس IChancyAgent (محول إلى Node.js بالكامل)
+// 🤖 كلاس IChancyAgent (محول إلى Node.js)
 // =========================================================
 class IChancyAgent {
   constructor() {
-    this.BASE_URL = BASE_URL;
+    this.BASE_URL = BASE_URL ? BASE_URL.replace(/\/$/, '') : '';
     this.USERNAME = AGENT_USERNAME;
     this.PASSWORD = AGENT_PASSWORD;
     this.loggedIn = false;
     this.authCache = { loggedIn: false, lastAuthTime: 0, cacheDuration: 1800 };
-    this.minRequestInterval = 1000; // تقليل الوقت قليلاً ليكون مناسباً للويب
+    this.minRequestInterval = 1000;
     this.lastRequestTime = 0;
-    this.requestCounter = 0;
 
-    // إعداد الجلسة والكوكيز
     this.jar = new CookieJar();
     this.client = wrapper(axios.create({ 
       jar: this.jar, 
@@ -109,6 +119,8 @@ class IChancyAgent {
   }
 
   async ensureLogin() {
+    if (!this.BASE_URL) return false;
+
     const now = Date.now() / 1000;
     if (this.authCache.loggedIn && (now - this.authCache.lastAuthTime) < this.authCache.cacheDuration) {
       return true;
@@ -124,40 +136,32 @@ class IChancyAgent {
       if (res.status === 200 && res.data?.status && res.data?.result?.message === 'dashboard') {
         this.loggedIn = true;
         this.authCache = { loggedIn: true, lastAuthTime: now, cacheDuration: 1800 };
-        console.log('✅ [Agent] Logged in successfully');
+        console.log('✅ [Agent] Logged in successfully to:', this.BASE_URL);
         return true;
+      } else {
+        console.error('❌ [Agent] Login failed. Response:', JSON.stringify(res.data));
       }
     } catch (error) {
       console.error('❌ [Agent] Login Error:', error.message);
+      if (error.response) console.error('Response Data:', error.response.data);
     }
     return false;
   }
 
   async makeRequest(endpoint, payload = null, method = "POST") {
-    // إدارة الوقت بين الطلبات لمنع الحظر
     const now = Date.now();
     const timeSinceLast = now - this.lastRequestTime;
-    if (timeSinceLast < this.minRequestInterval) {
-      await new Promise(r => setTimeout(r, this.minRequestInterval - timeSinceLast));
-    }
+    if (timeSinceLast < this.minRequestInterval) await new Promise(r => setTimeout(r, this.minRequestInterval - timeSinceLast));
 
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
         if (!await this.ensureLogin()) return { error: "Login failed", status: "error" };
 
         const url = `${this.BASE_URL}${endpoint}`;
-        let res;
-        
-        if (method === "POST") {
-          res = await this.client.post(url, payload);
-        } else {
-          res = await this.client.get(url);
-        }
-
+        let res = method === "POST" ? await this.client.post(url, payload) : await this.client.get(url);
         this.lastRequestTime = Date.now();
 
         if (res.status === 200) {
-          // التحقق من انتهاء الجلسة
           if (res.data?.result === "ex") {
             this.authCache.loggedIn = false;
             await new Promise(r => setTimeout(r, 2000));
@@ -166,9 +170,7 @@ class IChancyAgent {
           return res.data;
         }
       } catch (err) {
-        if (err.response?.status === 401) {
-          this.authCache.loggedIn = false;
-        }
+        if (err.response?.status === 401) this.authCache.loggedIn = false;
         await new Promise(r => setTimeout(r, 2000));
       }
     }
@@ -176,10 +178,9 @@ class IChancyAgent {
   }
 
   async registerPlayer(username, password, email) {
-    const payload = {
+    return this.makeRequest("/global/api/Player/registerPlayer", {
       player: { email, password, parentId: PARENT_ID, login: username }
-    };
-    return this.makeRequest("/global/api/Player/registerPlayer", payload);
+    });
   }
 
   async getPlayerBalance(playerId) {
@@ -187,20 +188,18 @@ class IChancyAgent {
   }
 
   async depositToPlayer(playerId, amount) {
-    const payload = {
+    const result = await this.makeRequest("/global/api/Player/depositToPlayer", {
       playerId: String(playerId), amount: amount, comment: null,
       currencyCode: "NSP", currency: "NSP", moneyStatus: 5
-    };
-    const result = await this.makeRequest("/global/api/Player/depositToPlayer", payload);
+    });
     return result?.status === true || result?.status === "true";
   }
 
   async withdrawFromPlayer(playerId, amount) {
-    const payload = {
+    const result = await this.makeRequest("/global/api/Player/withdrawFromPlayer", {
       playerId: String(playerId), amount: -amount, comment: null,
       currencyCode: "NSP", currency: "NSP", moneyStatus: 5
-    };
-    const result = await this.makeRequest("/global/api/Player/withdrawFromPlayer", payload);
+    });
     return result?.status === true || result?.status === "true";
   }
 }
@@ -321,6 +320,7 @@ app.post('/api/platform/withdraw', auth, async (req, res) => {
     if (!amount || amount <= 0) return res.status(400).json({ error: 'مبلغ غير صالح' });
     if (!req.user.player_id) return res.status(400).json({ error: 'يجب إنشاء حساب في المنصة أولاً' });
 
+    // جلب رصيد المستخدم في المنصة
     const balanceRes = await agent.getPlayerBalance(req.user.player_id);
     const platformBalance = balanceRes?.result?.balance || balanceRes?.balance || 0;
 
@@ -373,7 +373,9 @@ app.post('/api/admin/posts', auth, isAdmin, (req, res) => {
   res.json({ ok: true });
 });
 
+// توجيه أي مسار غير معروف إلى index.html
 app.get('*', (req, res, next) => { if (req.path.startsWith('/api/')) return next(); res.sendFile(path.join(__dirname, 'index.html')); });
 
+// تشغيل السيرفر
 const server = app.listen(PORT, '0.0.0.0', () => console.log(`🚀 ICHANCY running on port ${PORT}`));
 process.on('SIGTERM', () => server.close(() => process.exit(0)));

@@ -9,54 +9,26 @@
 /* ====================== الأساسيات ====================== */
 * { margin:0; padding:0; box-sizing:border-box; font-family:'Cairo',sans-serif; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; width: 100%; }
-body { 
-  background:#05060f; 
-  color:#e6ecff; 
-  overflow-x:hidden; 
-  position:relative;
-  display: flex;
-  flex-direction: column;
-}
+body { background:#05060f; color:#e6ecff; overflow-x:hidden; position:relative; display: flex; flex-direction: column; }
 
-/* ====================== تأثيرات الخلفية الفاخرة ====================== */
 .bg-blobs { position:fixed; inset:0; overflow:hidden; z-index:0; pointer-events:none; }
-.bg-blobs span { 
-  position:absolute; border-radius:50%; 
-  background: radial-gradient(circle, rgba(0,212,255,.15), transparent 70%); 
-  filter: blur(40px); animation: float 20s infinite ease-in-out; 
-}
-.bg-blobs span:nth-child(1){ width:300px;height:300px; top:-10%; left:-10%; animation-delay:0s;}
+.bg-blobs span { position:absolute; border-radius:50%; background: radial-gradient(circle, rgba(0,212,255,.15), transparent 70%); filter: blur(40px); animation: float 20s infinite ease-in-out; }
+.bg-blobs span:nth-child(1){ width:300px;height:300px; top:-10%; left:-10%; }
 .bg-blobs span:nth-child(2){ width:400px;height:400px; top:50%; left:80%; animation-delay:5s; background: radial-gradient(circle, rgba(168,85,247,.15), transparent 70%);}
-.bg-blobs span:nth-child(3){ width:250px;height:250px; top:80%; left:10%; animation-delay:10s; background: radial-gradient(circle, rgba(255,0,150,.1), transparent 70%);}
 @keyframes float{ 0%,100%{ transform:translate(0,0) scale(1);} 50%{ transform:translate(50px,-50px) scale(1.2);} }
 
-/* شبكة خلفية خفيفة */
-.grid-overlay {
-  position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  background-image: linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
-  background-size: 40px 40px;
-  mask-image: radial-gradient(circle at center, black, transparent 80%);
-  -webkit-mask-image: radial-gradient(circle at center, black, transparent 80%);
-}
+.grid-overlay { position: fixed; inset: 0; z-index: 0; pointer-events: none; background-image: linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px); background-size: 40px 40px; mask-image: radial-gradient(circle at center, black, transparent 80%); -webkit-mask-image: radial-gradient(circle at center, black, transparent 80%); }
 
 /* ====================== شاشة الدخول ====================== */
 .auth-screen { position:relative; z-index:10; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; }
-.auth-card { 
-  width:100%; max-width:440px; padding:40px 30px; 
-  background: rgba(15,18,35,.6); 
-  backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
-  border-radius:24px; border:1px solid rgba(0,212,255,.15); 
-  box-shadow: 0 25px 60px rgba(0,0,0,.8), inset 0 0 0 1px rgba(255,255,255,.05); 
-  animation: cardEntry .8s cubic-bezier(.2,.9,.3,1.2); 
-}
+.auth-card { width:100%; max-width:440px; padding:40px 30px; background: rgba(15,18,35,.6); backdrop-filter: blur(30px); border-radius:24px; border:1px solid rgba(0,212,255,.15); box-shadow: 0 25px 60px rgba(0,0,0,.8); animation: cardEntry .8s cubic-bezier(.2,.9,.3,1.2); }
 @keyframes cardEntry{ from{opacity:0; transform:translateY(40px) scale(.95);} to{opacity:1; transform:none;} }
 
-.logo { text-align:center; margin-bottom:30px; }
-.logo h1 { font-size:28px; font-weight:900; letter-spacing:1px; background: linear-gradient(90deg,#00d4ff,#a855f7,#00d4ff); background-size:200% auto; -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation: shine 4s linear infinite; }
+.logo h1 { font-size:28px; font-weight:900; text-align:center; margin-bottom:30px; background: linear-gradient(90deg,#00d4ff,#a855f7,#00d4ff); background-size:200% auto; -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation: shine 4s linear infinite; }
 @keyframes shine{ to{ background-position:200% center; } }
 
 .tabs { position:relative; display:flex; padding:6px; margin-bottom:24px; background: rgba(255,255,255,.03); border-radius:16px; border: 1px solid rgba(255,255,255,.05); }
-.tab { flex:1; padding:14px; background:transparent; border:none; color:#8892b0; font-weight:700; font-size:14px; cursor:pointer; z-index:2; transition:color .3s; font-family: 'Cairo', sans-serif; }
+.tab { flex:1; padding:14px; background:transparent; border:none; color:#8892b0; font-weight:700; font-size:14px; cursor:pointer; z-index:2; transition:color .3s; }
 .tab.active{ color:#fff; }
 .tab-slider { position:absolute; top:6px; bottom:6px; width:calc(50% - 6px); background: linear-gradient(135deg,#00d4ff,#a855f7); border-radius:12px; box-shadow:0 0 20px rgba(0,212,255,.4); transition: transform .4s cubic-bezier(.68,-.55,.27,1.55); }
 .tabs[data-active="register"] .tab-slider{ transform:translateX(-100%); }
@@ -66,176 +38,137 @@ body {
 @keyframes fadeIn{ from{opacity:0; transform:translateX(15px);} to{opacity:1; transform:none;} }
 
 .input-group { position:relative; }
-.input-group input { width:100%; padding:18px 16px 8px; background: rgba(0,0,0,.2); border:1px solid rgba(255,255,255,.1); border-radius:12px; color:#fff; font-size:15px; outline:none; transition: all .3s; }
+.input-group input { width:100%; padding:18px 16px 8px; background: rgba(0,0,0,.2); border:1px solid rgba(255,255,255,.1); border-radius:12px; color:#fff; font-size:15px; outline:none; }
 .input-group label { position:absolute; right:16px; top:50%; transform:translateY(-50%); color:#6c7794; font-size:14px; pointer-events:none; transition: all .3s; }
 .input-group input:focus ~ label, .input-group input:not(:placeholder-shown) ~ label { top:10px; transform:none; font-size:11px; color:#00d4ff; }
-.input-group input:focus { border-color: rgba(0,212,255,.6); background: rgba(0,212,255,.05); box-shadow: 0 0 15px rgba(0,212,255,.2); }
 
-.btn-primary { padding:16px; border:none; border-radius:12px; background: linear-gradient(135deg,#00d4ff,#a855f7); color:#fff; font-weight:900; font-size:16px; cursor:pointer; transition: all .3s; box-shadow:0 10px 20px rgba(0,212,255,.3); position: relative; overflow: hidden; font-family: 'Cairo', sans-serif;}
-.btn-primary::after { content:''; position: absolute; top:0; left:-100%; width:100%; height:100%; background: linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent); transition: left .5s; }
+.btn-primary { padding:16px; border:none; border-radius:12px; background: linear-gradient(135deg,#00d4ff,#a855f7); color:#fff; font-weight:900; font-size:16px; cursor:pointer; transition: all .3s; box-shadow:0 10px 20px rgba(0,212,255,.3); }
 .btn-primary:hover { transform:translateY(-2px); box-shadow:0 15px 30px rgba(168,85,247,.5); }
-.btn-primary:hover::after { left: 100%; }
-
 .switch-text { text-align:center; color:#6c7794; font-size:13px; margin-top: 5px; }
 .switch-text a { color:#00d4ff; text-decoration:none; font-weight:700; cursor:pointer; }
 
 /* ====================== لوحة التحكم ====================== */
-.dashboard { display:none; flex: 1; flex-direction: column; position:relative; z-index:10; width: 100%; }
+.dashboard { display:none; flex: 1; flex-direction: column; position:relative; z-index:10; width: 100%; padding-bottom: 70px; }
 .dashboard.active { display:flex; animation: fadeIn .4s ease; }
 
-/* الشريط العلوي */
-.topbar { 
-  min-height:64px; display:flex; align-items:center; justify-content:space-between; 
-  padding:10px 20px; 
-  background: rgba(10,14,30,.7); backdrop-filter: blur(20px);
-  border-bottom:1px solid rgba(0,212,255,.1); 
-  position:sticky; top:0; z-index:100; 
-  flex-wrap: wrap; gap: 10px;
-}
-.brand { display:flex; align-items:center; gap:10px; font-weight:900; font-size:18px; color: #fff; letter-spacing: .5px; }
+/* تثبيت الشريط العلوي الأول */
+.topbar { min-height:64px; display:flex; align-items:center; justify-content:space-between; padding:10px 20px; background: rgba(10,14,30,.85); backdrop-filter: blur(20px); border-bottom:1px solid rgba(0,212,255,.1); position:sticky; top:0; z-index:100; flex-wrap: wrap; gap: 10px; }
+.brand { display:flex; align-items:center; gap:10px; font-weight:900; font-size:18px; color: #fff; }
 .user-area { display:flex; align-items:center; gap:8px; flex-wrap: wrap; justify-content: flex-end; }
 .user-chip { display:flex; align-items:center; gap:8px; padding:4px 12px 4px 4px; background: rgba(255,255,255,.05); border-radius:999px; border: 1px solid rgba(255,255,255,.05); }
-.avatar { width:30px; height:30px; border-radius:50%; background: linear-gradient(135deg,#00d4ff,#a855f7); display:flex; align-items:center; justify-content:center; font-weight:900; color:#fff; font-size:13px; box-shadow: 0 0 10px rgba(0,212,255,.4); }
-.name { font-size: 13px; font-weight: 700; }
-.logout-btn { background: rgba(255,80,80,.1); border:1px solid rgba(255,80,80,.3); color:#ff6b6b; padding:6px 12px; border-radius:8px; cursor:pointer; font-weight:700; font-size:12px; transition: all .3s; font-family: 'Cairo', sans-serif;}
-.logout-btn:hover { background: rgba(255,80,80,.2); }
-.admin-btn { background: rgba(255, 215, 0, 0.1); border:1px solid rgba(255, 215, 0, 0.4); color:#ffd700; padding:6px 12px; border-radius:8px; cursor:pointer; font-weight:700; font-size:12px; display:none; transition: all .3s; font-family: 'Cairo', sans-serif;}
-.admin-btn:hover { background: rgba(255, 215, 0, 0.2); box-shadow: 0 0 15px rgba(255,215,0,.2); }
+.avatar { width:30px; height:30px; border-radius:50%; background: linear-gradient(135deg,#00d4ff,#a855f7); display:flex; align-items:center; justify-content:center; font-weight:900; color:#fff; font-size:13px; }
+.logout-btn { background: rgba(255,80,80,.1); border:1px solid rgba(255,80,80,.3); color:#ff6b6b; padding:6px 12px; border-radius:8px; cursor:pointer; font-weight:700; font-size:12px; }
+.admin-btn { background: rgba(255, 215, 0, 0.1); border:1px solid rgba(255, 215, 0, 0.4); color:#ffd700; padding:6px 12px; border-radius:8px; cursor:pointer; font-weight:700; font-size:12px; display:none; }
 
-/* شريط الرصيد */
-.balance-bar { 
-  display:flex; align-items:center; justify-content:space-between; 
-  padding:15px 20px; 
-  background: linear-gradient(90deg, rgba(0,212,255,.05), rgba(168,85,247,.05));
-  border-bottom:1px solid rgba(168,85,247,.15); 
-}
-.balance-label { color:#8892b0; font-size:12px; font-weight:600; margin-bottom: 2px;}
-.balance-value { 
-  font-size:28px; font-weight:900; 
-  background: linear-gradient(90deg,#00d4ff,#a855f7); 
-  -webkit-background-clip:text; -webkit-text-fill-color:transparent; 
-  filter: drop-shadow(0 0 10px rgba(0,212,255,.4));
-}
+/* تثبيت الشريط العلوي الثاني (الرصيد) */
+.balance-bar { display:flex; align-items:center; justify-content:space-between; padding:15px 20px; background: rgba(10,14,30,.85); backdrop-filter: blur(20px); border-bottom:1px solid rgba(168,85,247,.15); position:sticky; top:64px; z-index:99; }
+.balance-label { color:#8892b0; font-size:12px; font-weight:600; }
+.balance-value { font-size:28px; font-weight:900; background: linear-gradient(90deg,#00d4ff,#a855f7); -webkit-background-clip:text; -webkit-text-fill-color:transparent; filter: drop-shadow(0 0 10px rgba(0,212,255,.4)); }
 
 /* الإشعارات */
 .notif-wrap { position:relative; }
-.notif-btn { 
-  width:44px; height:44px; border-radius:12px; 
-  background: rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); 
-  color:#e6ecff; cursor:pointer; font-size:20px; 
-  display:flex; align-items:center; justify-content:center; 
-  transition: all .3s;
-}
-.notif-btn:hover { background: rgba(0,212,255,.1); border-color: rgba(0,212,255,.3); box-shadow: 0 0 15px rgba(0,212,255,.2);}
-.notif-badge { position:absolute; top:-4px; right:-4px; min-width:20px; height:20px; padding:0 5px; background: linear-gradient(135deg, #ff006e, #ff4d4d); border-radius:999px; font-size:11px; font-weight:900; display:flex; align-items:center; justify-content:center; color:#fff; box-shadow: 0 0 10px rgba(255,0,110,.6); }
+.notif-btn { width:44px; height:44px; border-radius:12px; background: rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); color:#e6ecff; cursor:pointer; font-size:20px; display:flex; align-items:center; justify-content:center; }
+.notif-badge { position:absolute; top:-4px; right:-4px; min-width:20px; height:20px; background: #ff006e; border-radius:999px; font-size:11px; font-weight:900; display:flex; align-items:center; justify-content:center; color:#fff; }
 .notif-badge.hidden { display:none; }
 
-.notif-panel { 
-  position:absolute; top:56px; left:0; width:320px; max-height:400px; overflow-y:auto; 
-  background: rgba(15,18,35,.95); backdrop-filter: blur(30px); 
-  border:1px solid rgba(0,212,255,.2); border-radius:16px; 
-  box-shadow: 0 20px 50px rgba(0,0,0,.9), 0 0 0 1px rgba(255,255,255,.05); 
-  padding:15px; display:none; z-index:9999; 
-}
+/* قائمة الإشعارات (متجاوبة) */
+.notif-panel { position:fixed; top:120px; left:50%; transform:translateX(-50%); width:90%; max-width:400px; max-height:60vh; overflow-y:auto; background: rgba(15,18,35,.98); backdrop-filter: blur(30px); border:1px solid rgba(0,212,255,.3); border-radius:16px; box-shadow: 0 20px 50px rgba(0,0,0,.9); padding:15px; display:none; z-index:9999; }
 .notif-panel.open { display:block; animation: fadeIn .3s ease; }
-.notif-item { padding:12px; margin-bottom:8px; border-radius:12px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.05); transition: all .2s; }
-.notif-item:hover { background: rgba(255,255,255,.06); }
+.notif-item { padding:12px; margin-bottom:8px; border-radius:12px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.05); }
 .notif-item.unread { background: rgba(0,212,255,.08); border-color: rgba(0,212,255,.2); border-right:3px solid #00d4ff; }
+.btn-close-notif { width: 100%; padding: 10px; margin-top: 10px; background: rgba(255,255,255,.1); border: none; border-radius: 8px; color: #fff; font-weight: 700; cursor: pointer; transition: .3s; }
+.btn-close-notif:hover { background: rgba(255,255,255,.2); }
 
-/* ====================== منطقة الأزرار (شريط واحد) ====================== */
+/* منطقة الأزرار */
 .actions-zone { flex: 1; padding: 25px 20px; display: flex; align-items: flex-start; justify-content: center; }
-.actions-rect { 
-  width: 100%; 
-  max-width: 900px; /* عرض أقصى للشريط */
-  display: flex; 
-  flex-direction: row; /* الحاويتان بجانب بعضهما دائماً */
-  gap: 20px; 
-}
+.actions-rect { width: 100%; max-width: 800px; display: flex; flex-direction: row; gap: 20px; }
 
+/* حاوية محفظتي بعرض أصغر */
 .action-box { 
-  flex: 1; /* يتقاسمان المساحة بالتساوي */
-  background: rgba(15,18,35,.5); 
-  backdrop-filter: blur(20px);
-  border:1px solid rgba(255,255,255,.08); 
-  border-radius:20px; 
-  padding:20px; 
-  display:flex; flex-direction:column; gap:15px; 
-  transition: all .4s cubic-bezier(0.2, 0.9, 0.3, 1.2); 
-  position: relative;
-  overflow: hidden;
+  background: rgba(15,18,35,.5); backdrop-filter: blur(20px); border:1px solid rgba(255,255,255,.08); 
+  border-radius:20px; padding:20px; display:flex; flex-direction:column; gap:15px; transition: all .4s;
 }
-/* توهج داخلي للحاويات */
-.action-box::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(0,212,255,.5), transparent);
-  opacity: 0.5;
-}
-.action-box:hover { 
-  border-color: rgba(0,212,255,.3); 
-  transform: translateY(-4px); 
-  box-shadow: 0 15px 30px rgba(0,0,0,.4), 0 0 20px rgba(0,212,255,.1); 
-}
+.action-box.wallet { flex: 0.7; }
+.action-box.transfers { flex: 1.3; }
 
 .action-title { color:#e6ecff; font-weight:700; font-size: 14px; display: flex; align-items: center; gap: 8px; }
-.action-box .btns { display:flex; flex-direction:column; gap:12px; } /* الأزرار فوق بعضها */
+.action-box .btns { display:flex; flex-direction:column; gap:12px; flex: 1; }
+.action-btn { width: 100%; border:none; border-radius:12px; padding:16px; font-weight:700; font-size:15px; cursor:pointer; transition: all .3s; display:flex; align-items:center; justify-content:center; gap:8px; }
 
-.action-btn { 
-  width: 100%; border:none; border-radius:12px; padding:16px; 
-  font-weight:700; font-size:15px; cursor:pointer; 
-  transition: all .3s cubic-bezier(0.2, 0.9, 0.3, 1.2); 
-  display:flex; align-items:center; justify-content:center; gap:8px; 
-  position: relative; overflow: hidden; font-family: 'Cairo', sans-serif;
-}
-.action-btn img { width: 22px; height: 22px; object-fit: contain; }
-
-/* زر الإيداع */
 .action-btn.deposit { background: rgba(0,212,255,.08); border:1px solid rgba(0,212,255,.3); color:#00d4ff; }
-.action-btn.deposit:hover { background: linear-gradient(135deg, #00d4ff, #0095c9); color:#fff; box-shadow:0 8px 25px rgba(0,212,255,.4); transform: translateY(-2px); }
-
-/* زر السحب */
 .action-btn.withdraw { background: rgba(255,80,80,.08); border:1px solid rgba(255,80,80,.3); color:#ff6b6b; }
-.action-btn.withdraw:hover { background: linear-gradient(135deg, #ff4d4d, #c43030); color:#fff; box-shadow:0 8px 25px rgba(255,80,80,.4); transform: translateY(-2px); }
-
-/* زر التعبئة */
 .action-btn.fill { background: rgba(168,85,247,.08); border:1px solid rgba(168,85,247,.3); color:#c084fc; }
-.action-btn.fill:hover { background: linear-gradient(135deg, #a855f7, #7e22ce); color:#fff; box-shadow:0 8px 25px rgba(168,85,247,.4); transform: translateY(-2px); }
-
-/* زر السحب من الحساب */
 .action-btn.take { background: rgba(34,197,94,.08); border:1px solid rgba(34,197,94,.3); color:#4ade80; }
-.action-btn.take:hover { background: linear-gradient(135deg, #22c55e, #15803d); color:#fff; box-shadow:0 8px 25px rgba(34,197,94,.4); transform: translateY(-2px); }
 
-/* Toast */
-.toast { position:fixed; bottom:24px; left:50%; transform:translate(-50%,120%); padding:14px 24px; border-radius:12px; background: rgba(15,18,35,.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,.1); color:#fff; font-weight:700; transition: transform .4s cubic-bezier(.2,.9,.3,1.2); z-index:99999; box-shadow: 0 10px 30px rgba(0,0,0,.6); }
-.toast.show { transform:translate(-50%,0); }
-.toast.error { border-color: #ff4d4d; color: #ff4d4d; }
-.toast.success { border-color: #4ade80; color: #4ade80; }
+/* الشريط السفلي الثابت */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; height: 70px;
+  background: rgba(10,14,30,.95); backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(0,212,255,.2);
+  display: flex; justify-content: space-around; align-items: center;
+  z-index: 1000; padding: 0 10px;
+}
+.bnav-btn {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px; background: transparent; border: none; color: #8892b0;
+  font-size: 11px; font-weight: 700; cursor: pointer; transition: all .3s;
+  font-family: 'Cairo'; width: 25%;
+}
+.bnav-btn .icon { font-size: 22px; transition: all .3s; }
+.bnav-btn:hover, .bnav-btn:active { color: #00d4ff; transform: translateY(-2px); }
 
-/* ====================== التجاوب مع الشاشات (Responsive) ====================== */
+/* النوافذ المنبثقة (Modal) */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.8); backdrop-filter: blur(5px);
+  display: none; justify-content: center; align-items: center; z-index: 10000; padding: 20px;
+}
+.modal-overlay.open { display: flex; animation: fadeIn .3s ease; }
+.modal-content {
+  background: rgba(15,18,35,.95); border: 1px solid rgba(0,212,255,.3);
+  border-radius: 20px; width: 100%; max-width: 500px; padding: 25px;
+  position: relative; box-shadow: 0 25px 50px rgba(0,0,0,.8);
+  max-height: 90vh; overflow-y: auto;
+}
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.modal-title { font-size: 18px; font-weight: 900; color: #00d4ff; }
+.close-modal { background: rgba(255,80,80,.1); border: 1px solid rgba(255,80,80,.3); color: #ff6b6b; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; justify-content: center; align-items: center; }
+
+/* الجداول والسجلات */
+.record-table { width: 100%; border-collapse: collapse; text-align: right; font-size: 13px; }
+.record-table th, .record-table td { padding: 12px 8px; border-bottom: 1px solid rgba(255,255,255,.05); }
+.record-table th { color: #8892b0; font-weight: 600; }
+.record-table td { color: #fff; font-weight: 700; }
+.badge-status { padding: 4px 8px; border-radius: 6px; font-size: 11px; }
+.status-pending { background: rgba(255, 215, 0, .1); color: #ffd700; }
+.status-completed { background: rgba(34, 197, 94, .1); color: #4ade80; }
+
+/* الدعم */
+.support-options { display: flex; flex-direction: column; gap: 15px; }
+.support-btn { display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.1); border-radius: 12px; color: #fff; text-decoration: none; font-weight: 700; transition: all .3s; }
+.support-btn:hover { background: rgba(0,212,255,.1); border-color: #00d4ff; }
+
+/* إصابات العملات */
+.post-card { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 15px; margin-bottom: 15px; text-align: center; }
+.post-card h5 { color: #fff; font-size: 15px; margin-bottom: 10px; }
+.post-card img, .post-card video { width: 100%; border-radius: 8px; max-height: 200px; object-fit: cover; }
+.post-card .admin-add { color: #ffd700; font-size: 12px; margin-top: 10px; cursor: pointer; text-decoration: underline; }
+
+/* التجاوب */
 @media (max-width: 768px) {
-  .auth-card { padding: 30px 20px; }
-  .logo h1 { font-size: 24px; }
-  .topbar { padding: 10px 15px; }
-  .balance-bar { padding: 12px 15px; }
-  .balance-value { font-size: 22px; }
-  .actions-zone { padding: 15px; }
-  .actions-rect { flex-direction: row; gap: 10px; } /* تبقى بجانب بعضها */
-  .action-box { padding: 15px; gap: 10px; }
+  .actions-rect { flex-direction: row; gap: 10px; }
   .action-btn { padding: 12px; font-size: 13px; }
 }
-
 @media (max-width: 400px) {
-  .actions-rect { flex-direction: column; } /* فقط في الشاشات الصغيرة جداً تصبح فوق بعضها */
-  .user-chip .name { display: none; }
-  .notif-panel { width: 280px; left: -80px; }
+  .actions-rect { flex-direction: column; }
+  .action-box { width: 100%; flex: none; }
 }
 </style>
 </head>
 <body>
 
-<div class="bg-blobs"><span></span><span></span><span></span></div>
+<div class="bg-blobs"><span></span><span></span></div>
 <div class="grid-overlay"></div>
 
-<!-- شاشة الدخول -->
 <div class="auth-screen" id="authScreen">
   <div class="auth-card">
     <div class="logo"><h1>ICHANCY WEBSITE</h1></div>
@@ -244,48 +177,27 @@ body {
       <button class="tab" data-tab="register">إنشاء حساب</button>
       <div class="tab-slider"></div>
     </div>
-
     <form id="loginForm" class="auth-form active">
-      <div class="input-group">
-        <input type="text" id="loginName" placeholder=" " required>
-        <label>الاسم الأول والثاني</label>
-      </div>
-      <div class="input-group">
-        <input type="password" id="loginPassword" placeholder=" " required>
-        <label>كلمة المرور</label>
-      </div>
+      <div class="input-group"><input type="text" id="loginName" placeholder=" " required><label>الاسم الأول والثاني</label></div>
+      <div class="input-group"><input type="password" id="loginPassword" placeholder=" " required><label>كلمة المرور</label></div>
       <button type="submit" class="btn-primary">دخول</button>
       <p class="switch-text">ليس لديك حساب؟ <a data-tab="register">أنشئ حساباً</a></p>
     </form>
-
     <form id="registerForm" class="auth-form">
-      <div class="input-group">
-        <input type="text" id="regName" placeholder=" " required>
-        <label>الاسم الأول والثاني</label>
-      </div>
-      <div class="input-group">
-        <input type="password" id="regPassword" placeholder=" " required minlength="6">
-        <label>كلمة المرور</label>
-      </div>
+      <div class="input-group"><input type="text" id="regName" placeholder=" " required><label>الاسم الأول والثاني</label></div>
+      <div class="input-group"><input type="password" id="regPassword" placeholder=" " required minlength="6"><label>كلمة المرور</label></div>
       <button type="submit" class="btn-primary">إنشاء الحساب</button>
       <p class="switch-text">لديك حساب؟ <a data-tab="login">سجل الدخول</a></p>
     </form>
   </div>
 </div>
 
-<!-- لوحة التحكم -->
 <div class="dashboard" id="dashboard">
   <div class="topbar">
-    <div class="brand">
-      <img src="" id="brandIcon" style="width:28px; height:28px; display:none; border-radius: 6px;">
-      <span id="brandText">⚡ ICHANCY</span>
-    </div>
+    <div class="brand">⚡ ICHANCY</div>
     <div class="user-area">
-      <button class="admin-btn" id="adminBtn" onclick="alert('لوحة الإدارة قريباً')">⚙️ إدارة</button>
-      <div class="user-chip">
-        <div class="avatar" id="avatar">U</div>
-        <div class="name" id="userName">User</div>
-      </div>
+      <button class="admin-btn" id="adminBtn" onclick="openAdminPanel()">⚙️ إدارة</button>
+      <div class="user-chip"><div class="avatar" id="avatar">U</div><div class="name" id="userName">User</div></div>
       <button class="logout-btn" id="logoutBtn">خروج</button>
     </div>
   </div>
@@ -296,91 +208,119 @@ body {
       <div class="balance-value">$<span id="balance">0.00</span></div>
     </div>
     <div class="notif-wrap">
-      <button class="notif-btn" id="notifBtn">
-        🔔 <span class="notif-badge hidden" id="notifBadge">0</span>
-      </button>
+      <button class="notif-btn" id="notifBtn">🔔 <span class="notif-badge hidden" id="notifBadge">0</span></button>
       <div class="notif-panel" id="notifPanel">
-        <h4 style="margin-bottom:12px; color:#00d4ff; font-size: 14px;">📬 الإشعارات</h4>
+        <h4 style="margin-bottom:12px; color:#00d4ff; font-size: 15px;">📬 الإشعارات</h4>
         <div id="notifList"></div>
+        <button class="btn-close-notif" onclick="closeNotifs()">قد قرأت الكل (إغلاق)</button>
       </div>
     </div>
   </div>
 
-  <!-- منطقة الأزرار في شريط واحد -->
   <div class="actions-zone">
     <div class="actions-rect">
-      
-      <div class="action-box">
+      <div class="action-box wallet">
         <div class="action-title">💰 محفظتي</div>
         <div class="btns">
-          <button class="action-btn deposit" onclick="doAction('deposit')">
-            <img id="iconDeposit" style="display:none"> <span>إيداع</span>
-          </button>
-          <button class="action-btn withdraw" onclick="doAction('withdraw')">
-            <img id="iconWithdraw" style="display:none"> <span>سحب</span>
-          </button>
+          <button class="action-btn deposit" onclick="doAction('deposit')"><span>إيداع</span></button>
+          <button class="action-btn withdraw" onclick="doAction('withdraw')"><span>سحب</span></button>
         </div>
       </div>
-
-      <div class="action-box">
+      <div class="action-box transfers">
         <div class="action-title">🔄 التحويلات</div>
         <div class="btns">
-          <button class="action-btn fill" onclick="doAction('fill')">
-            <img id="iconFill" style="display:none"> <span>تعبئة حسابي</span>
-          </button>
-          <button class="action-btn take" onclick="doAction('take')">
-            <img id="iconTake" style="display:none"> <span>سحب من حسابي</span>
-          </button>
+          <button class="action-btn fill" onclick="doAction('fill')"><span>تعبئة حسابي</span></button>
+          <button class="action-btn take" onclick="doAction('take')"><span>سحب من حسابي</span></button>
         </div>
       </div>
-
     </div>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="bottom-nav" id="bottomNav" style="display: none;">
+  <button class="bnav-btn" onclick="openSupport()"><span class="icon">🎧</span><span>الدعم</span></button>
+  <button class="bnav-btn" onclick="openGames()"><span class="icon">🎮</span><span>موقع الألعاب</span></button>
+  <button class="bnav-btn" onclick="openRecords()"><span class="icon">📄</span><span>سجلاتي</span></button>
+  <button class="bnav-btn" onclick="openPosts()"><span class="icon">💎</span><span>إصابات العملات</span></button>
+</div>
+
+<!-- 1. الدعم -->
+<div class="modal-overlay" id="modalSupport">
+  <div class="modal-content">
+    <div class="modal-header"><div class="modal-title">🎧 الدعم الفني</div><button class="close-modal" onclick="closeModal('modalSupport')">X</button></div>
+    <div class="support-options">
+      <a href="https://wa.me/123456789" target="_blank" class="support-btn">📱 تواصل عبر واتساب</a>
+      <a href="https://t.me/username" target="_blank" class="support-btn">✈️ تواصل عبر تيليجرام</a>
+      <a href="mailto:support@example.com" class="support-btn">✉️ مراسلة البريد الإلكتروني</a>
+    </div>
+  </div>
+</div>
+
+<!-- 2. الألعاب -->
+<div class="modal-overlay" id="modalGames">
+  <div class="modal-content" style="text-align: center;">
+    <div class="modal-header"><div class="modal-title">🎮 موقع الألعاب</div><button class="close-modal" onclick="closeModal('modalGames')">X</button></div>
+    <p style="margin-bottom: 20px;">سيتم تحويلك إلى موقع الألعاب.</p>
+    <button class="btn-primary" onclick="goToGames()" style="width: 100%;">دخول الموقع</button>
+  </div>
+</div>
+
+<!-- 3. السجلات -->
+<div class="modal-overlay" id="modalRecords">
+  <div class="modal-content" style="max-width: 600px;">
+    <div class="modal-header"><div class="modal-title">📄 سجلاتي</div><button class="close-modal" onclick="closeModal('modalRecords')">X</button></div>
+    <div style="overflow-x: auto;">
+      <table class="record-table">
+        <thead><tr><th>النوع</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th></tr></thead>
+        <tbody id="recordsBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- 4. إصابات العملات -->
+<div class="modal-overlay" id="modalPosts">
+  <div class="modal-content">
+    <div class="modal-header"><div class="modal-title">💎 إصابات العملات</div><button class="close-modal" onclick="closeModal('modalPosts')">X</button></div>
+    <p style="font-size: 12px; color: #8892b0; margin-bottom: 15px;">* يتم حذف المنشورات تلقائياً بعد 24 ساعة.</p>
+    <div id="postsContainer"></div>
+  </div>
+</div>
+
+<!-- 5. إدارة الإعدادات -->
+<div class="modal-overlay" id="modalAdmin">
+  <div class="modal-content">
+    <div class="modal-header"><div class="modal-title">⚙️ لوحة الإدارة</div><button class="close-modal" onclick="closeModal('modalAdmin')">X</button></div>
+    <div style="display: flex; flex-direction: column; gap: 15px;">
+      <div class="input-group"><input type="text" id="adminGameUrl" placeholder=" "><label>رابط موقع الألعاب</label></div>
+      <div class="input-group"><input type="text" id="adminProxyUrl" placeholder=" "><label>رابط البروكسي (اختياري)</label></div>
+      <button class="btn-primary" onclick="saveAdminSettings()">حفظ الإعدادات</button>
+      
+      <hr style="border-color: rgba(255,255,255,.1); margin: 15px 0;">
+      <h4 style="color:#00d4ff;">إضافة إصابة عملة جديدة</h4>
+      <div class="input-group"><input type="text" id="postTitle" placeholder=" "><label>عنوان الإصابة</label></div>
+      <div class="input-group"><input type="text" id="postUrl" placeholder=" "><label>رابط الصورة أو الفيديو</label></div>
+      <button class="btn-primary" onclick="addPost()">نشر الإصابة</button>
+    </div>
+  </div>
+</div>
 
 <script>
-/* مصفوفة الرموز والصور */
-const ASSETS = {
-  logo: "", deposit: "", withdraw: "", fill: "", take: ""
-};
-
-function applyAssets() {
-  if (ASSETS.logo) {
-    document.getElementById('brandIcon').src = ASSETS.logo;
-    document.getElementById('brandIcon').style.display = 'inline-block';
-    document.getElementById('brandText').style.display = 'none';
-  }
-  if (ASSETS.deposit) { document.getElementById('iconDeposit').src = ASSETS.deposit; document.getElementById('iconDeposit').style.display = 'inline'; }
-  if (ASSETS.withdraw) { document.getElementById('iconWithdraw').src = ASSETS.withdraw; document.getElementById('iconWithdraw').style.display = 'inline'; }
-  if (ASSETS.fill) { document.getElementById('iconFill').src = ASSETS.fill; document.getElementById('iconFill').style.display = 'inline'; }
-  if (ASSETS.take) { document.getElementById('iconTake').src = ASSETS.take; document.getElementById('iconTake').style.display = 'inline'; }
-}
-applyAssets();
-
 const $ = (s) => document.querySelector(s);
-const toastEl = $('#toast');
-function showToast(msg, type='success'){
-  toastEl.textContent = msg;
-  toastEl.className = 'toast show ' + type;
-  clearTimeout(toastEl._t);
-  toastEl._t = setTimeout(() => toastEl.classList.remove('show'), 3000);
-}
+let currentUser = null;
 
-async function api(url, options={}){
+async function api(url, options={}) {
   const res = await fetch(url, { headers: {'Content-Type':'application/json'}, credentials:'include', ...options });
   const data = await res.json().catch(()=>({}));
   if (!res.ok) throw new Error(data.error || 'حدث خطأ');
   return data;
 }
+function showToast(msg) { alert(msg); }
 
 document.querySelectorAll('.tab, [data-tab]').forEach(el => {
   if (el.classList.contains('tab') || el.tagName === 'A'){
     el.addEventListener('click', e => {
-      const target = el.dataset.tab;
-      if (!target) return;
-      e.preventDefault();
+      const target = el.dataset.tab; if (!target) return; e.preventDefault();
       document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === target));
       $('#loginForm').classList.toggle('active', target === 'login');
       $('#registerForm').classList.toggle('active', target === 'register');
@@ -391,105 +331,151 @@ document.querySelectorAll('.tab, [data-tab]').forEach(el => {
 
 $('#loginForm').addEventListener('submit', async e => {
   e.preventDefault();
-  try {
-    await api('/api/login', { method:'POST', body: JSON.stringify({ name: $('#loginName').value.trim(), password: $('#loginPassword').value }) });
-    showToast('تم الدخول بنجاح ✓');
-    await enterDashboard();
-  } catch(err){ showToast(err.message, 'error'); }
+  try { await api('/api/login', { method:'POST', body: JSON.stringify({ name: $('#loginName').value.trim(), password: $('#loginPassword').value }) }); await enterDashboard(); } catch(err){ alert(err.message); }
 });
 
 $('#registerForm').addEventListener('submit', async e => {
   e.preventDefault();
   try {
-    const name = $('#regName').value.trim();
-    const password = $('#regPassword').value;
+    const name = $('#regName').value.trim(), password = $('#regPassword').value;
     await api('/api/register', { method:'POST', body: JSON.stringify({ name, password }) });
     await api('/api/login', { method:'POST', body: JSON.stringify({ name, password }) });
-    showToast('تم إنشاء الحساب ✓');
     await enterDashboard();
-  } catch(err){ showToast(err.message, 'error'); }
+  } catch(err){ alert(err.message); }
 });
 
-$('#logoutBtn').addEventListener('click', async () => {
-  await api('/api/logout', {method:'POST'});
-  location.reload();
-});
+$('#logoutBtn').addEventListener('click', async () => { await api('/api/logout', {method:'POST'}); location.reload(); });
 
-let currentUser = null;
-let currentNotifs = [];
-
-async function enterDashboard(){
+async function enterDashboard() {
   const { user } = await api('/api/me');
   currentUser = user;
-  renderUser();
-  $('#authScreen').style.display = 'none';
-  $('#dashboard').classList.add('active');
-  await loadNotifications();
-}
-
-function renderUser(){
   $('#userName').textContent = currentUser.name;
   $('#avatar').textContent = currentUser.name.charAt(0).toUpperCase();
   $('#balance').textContent = Number(currentUser.balance).toFixed(2);
-  if (currentUser.role === 'admin') {
-    $('#adminBtn').style.display = 'block';
+  if (currentUser.role === 'admin') $('#adminBtn').style.display = 'block';
+  
+  $('#authScreen').style.display = 'none';
+  $('#dashboard').classList.add('active');
+  $('#bottomNav').style.display = 'flex';
+  await loadNotifications();
+}
+
+async function loadNotifications() {
+  const data = await api('/api/notifications');
+  const badge = $('#notifBadge'), list = $('#notifList');
+  if (data.unread > 0) { badge.textContent = data.unread; badge.classList.remove('hidden'); } else badge.classList.add('hidden');
+  list.innerHTML = data.notifications.map(n => `
+    <div class="notif-item ${n.is_read ? '' : 'unread'}">
+      <div style="font-weight:700; font-size:13px; color: #fff;">${n.title}</div>
+      <div style="font-size:12px; color:#8892b0;">${n.body}</div>
+      <div style="font-size:10px; color:#5a6480; margin-top:4px;">${new Date(n.created_at).toLocaleString('ar')}</div>
+    </div>
+  `).join('') || '<div style="text-align:center; color:#8892b0;">لا توجد إشعارات</div>';
+}
+
+$('#notifBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  $('#notifPanel').classList.toggle('open');
+});
+async function closeNotifs() {
+  $('#notifPanel').classList.remove('open');
+  await api('/api/notifications/read', {method:'POST'});
+  $('#notifBadge').classList.add('hidden');
+  loadNotifications();
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.notif-wrap') && !e.target.closest('.notif-panel')) $('#notifPanel').classList.remove('open');
+});
+
+async function doAction(type) {
+  if (type === 'deposit' || type === 'withdraw') {
+    const val = prompt(type === 'deposit' ? 'أدخل مبلغ الإيداع:' : 'أدخل مبلغ السحب:');
+    if (!val) return;
+    try {
+      await api(type === 'deposit' ? '/api/deposit' : '/api/withdraw', { method:'POST', body: JSON.stringify({ amount: parseFloat(val) }) });
+      alert('تمت العملية بنجاح');
+    } catch(e) { alert(e.message); }
+  } else {
+    alert('هذه الميزة قيد التطوير');
   }
 }
 
-async function loadNotifications(){
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function openSupport() { openModal('modalSupport'); }
+function openGames() { openModal('modalGames'); }
+
+async function goToGames() {
   try {
-    const data = await api('/api/notifications');
-    currentNotifs = data.notifications;
-    renderNotifs(data.unread);
+    const settings = await api('/api/settings');
+    if (settings.proxy_url) window.location.href = settings.proxy_url;
+    else if (settings.game_url) window.open(settings.game_url, '_blank');
+    else alert('لم يتم تعيين رابط الألعاب بعد.');
+  } catch(e) { alert('خطأ في جلب الرابط'); }
+}
+
+async function openRecords() {
+  openModal('modalRecords');
+  try {
+    const { transactions } = await api('/api/transactions');
+    $('#recordsBody').innerHTML = transactions.map(t => `
+      <tr>
+        <td>${t.type === 'deposit' ? 'إيداع' : 'سحب'}</td>
+        <td style="color:${t.type === 'deposit' ? '#00d4ff' : '#ff6b6b'}">$${t.amount}</td>
+        <td><span class="badge-status ${t.status === 'completed' ? 'status-completed' : 'status-pending'}">${t.status === 'completed' ? 'مكتمل' : 'قيد الانتظار'}</span></td>
+        <td style="font-size:11px; color:#8892b0;">${new Date(t.created_at).toLocaleDateString('ar')}</td>
+      </tr>
+    `).join('') || '<tr><td colspan="4" style="text-align:center; color:#8892b0;">لا توجد سجلات</td></tr>';
+  } catch(e) { alert('خطأ في جلب السجلات'); }
+}
+
+async function openPosts() {
+  openModal('modalPosts');
+  try {
+    const { posts } = await api('/api/posts');
+    let html = posts.map(p => `
+      <div class="post-card">
+        <h5>${p.title}</h5>
+        ${p.media_type === 'video' ? `<video src="${p.media_url}" controls></video>` : `<img src="${p.media_url}">`}
+      </div>
+    `).join('');
+    
+    if (currentUser.role === 'admin') {
+      html += `<div class="post-card" style="border-color: #ffd700;"><div class="admin-add" onclick="closeModal('modalPosts'); openAdminPanel();">+ إضافة إصابة جديدة (للمشرف)</div></div>`;
+    }
+    $('#postsContainer').innerHTML = html || '<p style="text-align:center; color:#8892b0;">لا توجد إصابات حالياً (أو انتهت صلاحيتها)</p>';
+  } catch(e) { alert('خطأ في جلب المنشورات'); }
+}
+
+async function openAdminPanel() {
+  openModal('modalAdmin');
+  try {
+    const s = await api('/api/settings');
+    $('#adminGameUrl').value = s.game_url || '';
+    $('#adminProxyUrl').value = s.proxy_url || '';
   } catch(e) {}
 }
 
-function renderNotifs(unread){
-  const badge = $('#notifBadge');
-  if (unread > 0){ badge.textContent = unread; badge.classList.remove('hidden'); }
-  else badge.classList.add('hidden');
-
-  const list = $('#notifList');
-  if (!currentNotifs.length){ list.innerHTML = '<div style="text-align:center; color:#6c7794; padding:20px; font-size:13px;">لا توجد إشعارات</div>'; return; }
-  
-  list.innerHTML = currentNotifs.map(n => `
-    <div class="notif-item ${n.is_read ? '' : 'unread'}">
-      <div style="font-weight:700; font-size:13px; margin-bottom:4px; color: #fff;">${escapeHtml(n.title)}</div>
-      <div style="font-size:12px; color:#8892b0; line-height: 1.5;">${escapeHtml(n.body)}</div>
-      <div style="font-size:10px; color:#5a6480; margin-top:6px;">${new Date(n.created_at).toLocaleString('ar')}</div>
-    </div>
-  `).join('');
+async function saveAdminSettings() {
+  try {
+    await api('/api/admin/settings', { method: 'POST', body: JSON.stringify({
+      game_url: $('#adminGameUrl').value, proxy_url: $('#adminProxyUrl').value
+    })});
+    alert('تم الحفظ بنجاح');
+  } catch(e) { alert(e.message); }
 }
 
-function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-
-$('#notifBtn').addEventListener('click', async e => {
-  e.stopPropagation();
-  const p = $('#notifPanel');
-  p.classList.toggle('open');
-  if (p.classList.contains('open')){
-    await api('/api/notifications/read', {method:'POST'}).catch(()=>{});
-    currentNotifs.forEach(n => n.is_read = 1);
-    renderNotifs(0);
-  }
-});
-document.addEventListener('click', e => {
-  if (!e.target.closest('.notif-wrap')) $('#notifPanel').classList.remove('open');
-});
-
-async function doAction(type){
-  if (type === 'deposit' || type === 'withdraw'){
-    const val = prompt(type === 'deposit' ? 'أدخل مبلغ الإيداع:' : 'أدخل مبلغ السحب:');
-    if (!val) return;
-    const amount = parseFloat(val);
-    if (!amount || amount <= 0) return showToast('مبلغ غير صالح','error');
-    try {
-      const { message } = await api(type === 'deposit' ? '/api/deposit' : '/api/withdraw', { method:'POST', body: JSON.stringify({ amount }) });
-      showToast(message || 'تم');
-    } catch(e){ showToast(e.message, 'error'); }
-    return;
-  }
-  if (type === 'fill' || type === 'take') showToast('هذه الميزة قيد التطوير 🚧');
+async function addPost() {
+  try {
+    const url = $('#postUrl').value;
+    await api('/api/admin/posts', { method: 'POST', body: JSON.stringify({
+      title: $('#postTitle').value, media_url: url, media_type: url.match(/\.(mp4|webm)$/i) ? 'video' : 'image'
+    })});
+    alert('تم النشر بنجاح (سيُحذف تلقائياً بعد 24 ساعة)');
+    $('#postTitle').value = ''; $('#postUrl').value = '';
+    closeModal('modalAdmin');
+  } catch(e) { alert(e.message); }
 }
 
 (async () => { try { await enterDashboard(); } catch(e) {} })();

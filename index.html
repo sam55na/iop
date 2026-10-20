@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ICHANCY WEBSITE</title>
+<title>Service IChancy</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
 /* ====================== الأساسيات ====================== */
@@ -26,7 +26,6 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
 .auth-card { width:100%; max-width:440px; padding:40px 30px; background: rgba(15,18,35,.7); backdrop-filter: blur(25px); border-radius:24px; border:1px solid rgba(0,212,255,.2); box-shadow: 0 25px 60px rgba(0,0,0,.8); animation: cardEntry .8s cubic-bezier(.2,.9,.3,1.2); }
 @keyframes cardEntry{ from{opacity:0; transform:translateY(40px) scale(.95);} to{opacity:1; transform:none;} }
 
-/* شعار الموقع المتحرك */
 .logo h1 { font-size:28px; font-weight:900; text-align:center; margin-bottom:30px; background: linear-gradient(90deg,#00d4ff,#a855f7,#00d4ff); background-size:200% auto; -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation: shine 3s linear infinite; filter: drop-shadow(0 0 8px rgba(0,212,255,.5)); }
 @keyframes shine{ to{ background-position:200% center; } }
 
@@ -57,17 +56,7 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
 
 /* الشريط العلوي */
 .topbar { min-height:60px; display:flex; align-items:center; justify-content:space-between; padding:10px 20px; background: rgba(10,14,30,.85); backdrop-filter: blur(20px); border-bottom:1px solid rgba(0,212,255,.2); position:sticky; top:0; z-index:100; flex-wrap: wrap; gap: 10px; box-shadow: 0 5px 20px rgba(0,0,0,.5); }
-
-/* اسم الموقع المتحرك والمشع */
-.brand { 
-  display:flex; align-items:center; gap:10px; font-weight:900; font-size:18px; 
-  background: linear-gradient(90deg, #00d4ff, #fff, #a855f7, #00d4ff); 
-  background-size: 300% auto; 
-  -webkit-background-clip: text; 
-  -webkit-text-fill-color: transparent; 
-  animation: brandShine 3s linear infinite; 
-  filter: drop-shadow(0 0 5px rgba(0,212,255,.6)); 
-}
+.brand { display:flex; align-items:center; gap:10px; font-weight:900; font-size:18px; background: linear-gradient(90deg, #00d4ff, #fff, #a855f7, #00d4ff); background-size: 300% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: brandShine 3s linear infinite; filter: drop-shadow(0 0 5px rgba(0,212,255,.6)); }
 @keyframes brandShine { 0% { background-position: 0% center; } 100% { background-position: 300% center; } }
 
 .user-area { display:flex; align-items:center; gap:8px; flex-wrap: wrap; justify-content: flex-end; }
@@ -78,7 +67,7 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
 .admin-btn { background: rgba(255, 215, 0, 0.1); border:1px solid rgba(255, 215, 0, 0.4); color:#ffd700; padding:6px 12px; border-radius:8px; cursor:pointer; font-weight:700; font-size:12px; display:none; transition: .3s; }
 .admin-btn:hover { background: rgba(255, 215, 0, 0.2); box-shadow: 0 0 15px rgba(255,215,0,.4); }
 
-/* شريط الرصيد (تم تصغير ارتفاعه إلى النصف) */
+/* شريط الرصيد */
 .balance-bar { display:flex; align-items:center; justify-content:space-between; padding:6px 20px; background: rgba(10,14,30,.85); backdrop-filter: blur(20px); border-bottom:1px solid rgba(168,85,247,.2); position:sticky; top:60px; z-index:99; box-shadow: 0 5px 20px rgba(0,0,0,.5); }
 .balance-label { color:#8892b0; font-size:11px; font-weight:600; }
 .balance-value { font-size:20px; font-weight:900; background: linear-gradient(90deg,#00d4ff,#a855f7); -webkit-background-clip:text; -webkit-text-fill-color:transparent; filter: drop-shadow(0 0 10px rgba(0,212,255,.5)); }
@@ -90,7 +79,6 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
 .notif-badge { position:absolute; top:-4px; right:-4px; min-width:18px; height:18px; background: #ff006e; border-radius:999px; font-size:10px; font-weight:900; display:flex; align-items:center; justify-content:center; color:#fff; box-shadow: 0 0 10px #ff006e; }
 .notif-badge.hidden { display:none; }
 
-/* قائمة الإشعارات */
 .notif-panel { position:fixed; top:110px; left:50%; transform:translateX(-50%); width:90%; max-width:400px; max-height:60vh; overflow-y:auto; background: rgba(15,18,35,.98); backdrop-filter: blur(30px); border:1px solid rgba(0,212,255,.4); border-radius:16px; box-shadow: 0 20px 50px rgba(0,0,0,.9), 0 0 30px rgba(0,212,255,.2); padding:15px; display:none; z-index:9999; }
 .notif-panel.open { display:block; animation: fadeIn .3s ease; }
 .notif-item { padding:12px; margin-bottom:8px; border-radius:12px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.05); }
@@ -98,7 +86,7 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
 .btn-close-notif { width: 100%; padding: 10px; margin-top: 10px; background: rgba(255,255,255,.1); border: none; border-radius: 8px; color: #fff; font-weight: 700; cursor: pointer; transition: .3s; }
 .btn-close-notif:hover { background: rgba(255,255,255,.2); }
 
-/* ====================== منطقة الأزرار ====================== */
+/* منطقة الأزرار */
 .actions-zone { flex: 1; padding: 25px 15px; display: flex; align-items: flex-start; justify-content: center; }
 .actions-rect { width: 100%; max-width: 800px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 
@@ -121,14 +109,14 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
 .action-btn.take { background: rgba(34,197,94,.08); border:1px solid rgba(34,197,94,.4); color:#4ade80; }
 .action-btn.take:hover { background: #4ade80; color:#000; box-shadow: 0 0 20px rgba(34,197,94,.8); transform: scale(1.02); }
 
-/* ====================== الشريط السفلي ====================== */
+/* الشريط السفلي */
 .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 70px; background: rgba(10,14,30,.95); backdrop-filter: blur(20px); border-top: 1px solid rgba(0,212,255,.2); display: flex; justify-content: space-around; align-items: center; z-index: 1000; padding: 0 10px; box-shadow: 0 -5px 20px rgba(0,0,0,.5); }
 .bnav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: transparent; border: none; color: #8892b0; font-size: 11px; font-weight: 700; cursor: pointer; transition: all .3s; width: 25%; }
 .bnav-btn .icon { font-size: 22px; transition: all .3s; }
 .bnav-btn:hover, .bnav-btn:active { color: #00d4ff; transform: translateY(-2px); }
 .bnav-btn:hover .icon { filter: drop-shadow(0 0 10px #00d4ff); }
 
-/* ====================== النوافذ المنبثقة ====================== */
+/* النوافذ المنبثقة */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.8); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 10000; padding: 15px; }
 .modal-overlay.open { display: flex; animation: fadeIn .3s ease; }
 .modal-content { background: rgba(15,18,35,.98); border: 1px solid rgba(0,212,255,.4); border-radius: 20px; width: 100%; max-width: 500px; padding: 25px; position: relative; box-shadow: 0 25px 50px rgba(0,0,0,.9), 0 0 30px rgba(0,212,255,.2); max-height: 90vh; overflow-y: auto; }
@@ -171,6 +159,7 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
 <div class="bg-blobs"><span></span><span></span><span></span></div>
 <div class="grid-overlay"></div>
 
+<!-- شاشة الدخول -->
 <div class="auth-screen" id="authScreen">
   <div class="auth-card">
     <div class="logo"><h1>Service IChancy</h1></div>
@@ -194,15 +183,13 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
   </div>
 </div>
 
+<!-- لوحة التحكم -->
 <div class="dashboard" id="dashboard">
   <div class="topbar">
     <div class="brand">Service IChancy</div>
     <div class="user-area">
       <button class="admin-btn" id="adminBtn" onclick="openAdminPanel()">⚙️ إدارة</button>
-      <div class="user-chip">
-        <div class="avatar" id="avatar">U</div>
-        <!-- تم إزالة عرض الاسم بالكامل والاكتفاء بالحرف -->
-      </div>
+      <div class="user-chip"><div class="avatar" id="avatar">U</div></div>
       <button class="logout-btn" id="logoutBtn">خروج</button>
     </div>
   </div>
@@ -224,24 +211,27 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
 
   <div class="actions-zone">
     <div class="actions-rect">
+      <!-- حاوية المحفظة -->
       <div class="action-box">
         <div class="action-title">💰 محفظتي</div>
         <div class="btns">
-          <button class="action-btn deposit" onclick="doAction('deposit')"><span>إيداع</span></button>
-          <button class="action-btn withdraw" onclick="doAction('withdraw')"><span>سحب</span></button>
+          <button id="btnMain1" class="action-btn deposit" onclick="handleMainAction(1)">إيداع</button>
+          <button id="btnMain2" class="action-btn withdraw" onclick="handleMainAction(2)">سحب</button>
         </div>
       </div>
+      <!-- حاوية التحويلات -->
       <div class="action-box">
         <div class="action-title">🔄 التحويلات</div>
         <div class="btns">
-          <button class="action-btn fill" onclick="doAction('fill')"><span>تعبئة حسابي</span></button>
-          <button class="action-btn take" onclick="doAction('take')"><span>سحب من حسابي</span></button>
+          <button id="btnMain3" class="action-btn fill" onclick="handleMainAction(3)">جاري التحميل...</button>
+          <button id="btnMain4" class="action-btn take" onclick="handleMainAction(4)">جاري التحميل...</button>
         </div>
       </div>
     </div>
   </div>
 </div>
 
+<!-- الشريط السفلي -->
 <div class="bottom-nav" id="bottomNav" style="display: none;">
   <button class="bnav-btn" onclick="openSupport()"><span class="icon">🎧</span><span>الدعم</span></button>
   <button class="bnav-btn" onclick="openGames()"><span class="icon">🎮</span><span>موقع الألعاب</span></button>
@@ -249,6 +239,7 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
   <button class="bnav-btn" onclick="openPosts()"><span class="icon">💎</span><span>إصابات العملات</span></button>
 </div>
 
+<!-- إطار الألعاب -->
 <div id="gameFrameContainer">
   <div class="game-header">
     <div style="font-weight:900; color:#00d4ff;">🎮 موقع الألعاب</div>
@@ -257,6 +248,21 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
   <iframe id="gameIframe" class="game-iframe" src="" allowfullscreen></iframe>
 </div>
 
+<!-- نافذة إنشاء حساب المنصة -->
+<div class="modal-overlay" id="modalCreatePlatform">
+  <div class="modal-content">
+    <div class="modal-header"><div class="modal-title">🔗 ربط حساب المنصة</div><button class="close-modal" onclick="closeModal('modalCreatePlatform')">X</button></div>
+    <p style="font-size: 13px; color: #8892b0; margin-bottom: 15px;">يجب إنشاء حساب في المنصة أولاً لتتمكن من تعبئة أو سحب الرصيد.</p>
+    <div style="display: flex; flex-direction: column; gap: 15px;">
+      <div class="input-group"><input type="text" id="platUser" placeholder=" " required><label>اسم المستخدم في المنصة</label></div>
+      <div class="input-group"><input type="email" id="platEmail" placeholder=" " required><label>البريد الإلكتروني</label></div>
+      <div class="input-group"><input type="password" id="platPass" placeholder=" " required><label>كلمة المرور</label></div>
+      <button class="btn-primary" onclick="createPlatformAccount()">إنشاء الحساب</button>
+    </div>
+  </div>
+</div>
+
+<!-- باقي النوافذ (الدعم، السجلات، الإصابات، الإدارة) -->
 <div class="modal-overlay" id="modalSupport">
   <div class="modal-content">
     <div class="modal-header"><div class="modal-title">🎧 الدعم الفني</div><button class="close-modal" onclick="closeModal('modalSupport')">X</button></div>
@@ -314,7 +320,6 @@ async function api(url, options={}) {
   if (!res.ok) throw new Error(data.error || 'حدث خطأ');
   return data;
 }
-function showToast(msg) { alert(msg); }
 
 document.querySelectorAll('.tab, [data-tab]').forEach(el => {
   if (el.classList.contains('tab') || el.tagName === 'A'){
@@ -348,10 +353,11 @@ $('#logoutBtn').addEventListener('click', async () => { await api('/api/logout',
 async function enterDashboard() {
   const { user } = await api('/api/me');
   currentUser = user;
-  // عرض الحرف الأول فقط في الأفاتار
   $('#avatar').textContent = currentUser.name.charAt(0).toUpperCase();
-  // إذا كنت تريد إخفاء اسم المستخدم بالكامل من الكود، فقد تم إزالة عنصر <div id="userName"> من الـ HTML  $('#balance').textContent = Number(currentUser.balance).toFixed(2);
+  $('#balance').textContent = Number(currentUser.balance).toFixed(2);
   if (currentUser.role === 'admin') $('#adminBtn').style.display = 'block';
+  
+  updateButtons(user.hasAccount);
   
   $('#authScreen').style.display = 'none';
   $('#dashboard').classList.add('active');
@@ -359,6 +365,50 @@ async function enterDashboard() {
   await loadNotifications();
 }
 
+// 🌟 تحديث الأزرار بناءً على حالة الحساب
+function updateButtons(hasAccount) {
+  const b1 = $('#btnMain1'), b2 = $('#btnMain2'), b3 = $('#btnMain3'), b4 = $('#btnMain4');
+  if (!hasAccount) {
+    b1.innerText = 'إنشاء حساب بالمنصة'; b1.className = 'action-btn deposit'; b1.onclick = () => openModal('modalCreatePlatform');
+    b2.innerText = 'إنشاء حساب بالمنصة'; b2.className = 'action-btn withdraw'; b2.onclick = () => openModal('modalCreatePlatform');
+    b3.innerText = 'إنشاء حساب بالمنصة'; b3.className = 'action-btn fill'; b3.onclick = () => openModal('modalCreatePlatform');
+    b4.innerText = 'إنشاء حساب بالمنصة'; b4.className = 'action-btn take'; b4.onclick = () => openModal('modalCreatePlatform');
+  } else {
+    b1.innerText = 'تعبئة حسابي'; b1.className = 'action-btn deposit'; b1.onclick = () => doPlatformAction('deposit');
+    b2.innerText = 'سحب من حسابي'; b2.className = 'action-btn withdraw'; b2.onclick = () => doPlatformAction('withdraw');
+    b3.innerText = 'تعبئة حسابي'; b3.className = 'action-btn fill'; b3.onclick = () => doPlatformAction('deposit');
+    b4.innerText = 'سحب من حسابي'; b4.className = 'action-btn take'; b4.onclick = () => doPlatformAction('withdraw');
+  }
+}
+
+// دالة إنشاء الحساب
+async function createPlatformAccount() {
+  const username = $('#platUser').value.trim();
+  const email = $('#platEmail').value.trim();
+  const password = $('#platPass').value;
+  if (!username || !email || !password) return alert('يرجى ملء جميع الحقول');
+  try {
+    await api('/api/platform/create-account', { method: 'POST', body: JSON.stringify({ username, password, email }) });
+    alert('تم ربط الحساب بنجاح!');
+    closeModal('modalCreatePlatform');
+    await enterDashboard();
+  } catch (err) { alert(err.message); }
+}
+
+// دالة تنفيذ الإيداع والسحب
+async function doPlatformAction(type) {
+  const val = prompt(type === 'deposit' ? 'أدخل المبلغ المراد إيداعه:' : 'أدخل المبلغ المراد سحبه:');
+  if (!val) return;
+  const amount = parseFloat(val);
+  if (!amount || amount <= 0) return alert('مبلغ غير صالح');
+  try {
+    await api(type === 'deposit' ? '/api/platform/deposit' : '/api/platform/withdraw', { method: 'POST', body: JSON.stringify({ amount }) });
+    alert('تمت العملية بنجاح!');
+    await enterDashboard();
+  } catch (e) { alert(e.message); }
+}
+
+// باقي الدوال (النوافذ، الإشعارات، إلخ)
 async function loadNotifications() {
   const data = await api('/api/notifications');
   const badge = $('#notifBadge'), list = $('#notifList');
@@ -371,55 +421,22 @@ async function loadNotifications() {
     </div>
   `).join('') || '<div style="text-align:center; color:#8892b0;">لا توجد إشعارات</div>';
 }
-
-$('#notifBtn').addEventListener('click', (e) => {
-  e.stopPropagation();
-  $('#notifPanel').classList.toggle('open');
-});
-async function closeNotifs() {
-  $('#notifPanel').classList.remove('open');
-  await api('/api/notifications/read', {method:'POST'});
-  $('#notifBadge').classList.add('hidden');
-  loadNotifications();
-}
-document.addEventListener('click', e => {
-  if (!e.target.closest('.notif-wrap') && !e.target.closest('.notif-panel')) $('#notifPanel').classList.remove('open');
-});
-
-async function doAction(type) {
-  if (type === 'deposit' || type === 'withdraw') {
-    const val = prompt(type === 'deposit' ? 'أدخل مبلغ الإيداع:' : 'أدخل مبلغ السحب:');
-    if (!val) return;
-    try {
-      await api(type === 'deposit' ? '/api/deposit' : '/api/withdraw', { method:'POST', body: JSON.stringify({ amount: parseFloat(val) }) });
-      alert('تمت العملية بنجاح');
-    } catch(e) { alert(e.message); }
-  } else {
-    alert('هذه الميزة قيد التطوير');
-  }
-}
+$('#notifBtn').addEventListener('click', (e) => { e.stopPropagation(); $('#notifPanel').classList.toggle('open'); });
+async function closeNotifs() { $('#notifPanel').classList.remove('open'); await api('/api/notifications/read', {method:'POST'}); $('#notifBadge').classList.add('hidden'); loadNotifications(); }
+document.addEventListener('click', e => { if (!e.target.closest('.notif-wrap') && !e.target.closest('.notif-panel')) $('#notifPanel').classList.remove('open'); });
 
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
 function openSupport() { openModal('modalSupport'); }
 
 async function openGames() {
   try {
-    const settings = await api('/api/settings');
-    const url = settings.proxy_url || settings.game_url;
-    if (url) {
-      $('#gameIframe').src = url;
-      $('#gameFrameContainer').classList.add('open');
-    } else {
-      alert('لم يتم تعيين رابط الألعاب بعد.');
-    }
-  } catch(e) { alert('خطأ في جلب الرابط'); }
+    const s = await api('/api/settings');
+    const url = s.proxy_url || s.game_url;
+    if (url) { $('#gameIframe').src = url; $('#gameFrameContainer').classList.add('open'); } else alert('لم يتم تعيين رابط الألعاب.');
+  } catch(e) { alert('خطأ'); }
 }
-function closeGameFrame() {
-  $('#gameFrameContainer').classList.remove('open');
-  $('#gameIframe').src = '';
-}
+function closeGameFrame() { $('#gameFrameContainer').classList.remove('open'); $('#gameIframe').src = ''; }
 
 async function openRecords() {
   openModal('modalRecords');
@@ -433,7 +450,7 @@ async function openRecords() {
         <td style="font-size:11px; color:#8892b0;">${new Date(t.created_at).toLocaleDateString('ar')}</td>
       </tr>
     `).join('') || '<tr><td colspan="4" style="text-align:center; color:#8892b0;">لا توجد سجلات</td></tr>';
-  } catch(e) { alert('خطأ في جلب السجلات'); }
+  } catch(e) { alert('خطأ'); }
 }
 
 async function openPosts() {
@@ -446,12 +463,9 @@ async function openPosts() {
         ${p.media_type === 'video' ? `<video src="${p.media_url}" controls></video>` : `<img src="${p.media_url}">`}
       </div>
     `).join('');
-    
-    if (currentUser.role === 'admin') {
-      html += `<div class="post-card" style="border-color: #ffd700;"><div class="admin-add" onclick="closeModal('modalPosts'); openAdminPanel();">+ إضافة إصابة جديدة (للمشرف)</div></div>`;
-    }
+    if (currentUser.role === 'admin') html += `<div class="post-card" style="border-color: #ffd700;"><div class="admin-add" onclick="closeModal('modalPosts'); openAdminPanel();">+ إضافة إصابة جديدة</div></div>`;
     $('#postsContainer').innerHTML = html || '<p style="text-align:center; color:#8892b0;">لا توجد إصابات حالياً</p>';
-  } catch(e) { alert('خطأ في جلب المنشورات'); }
+  } catch(e) { alert('خطأ'); }
 }
 
 async function openAdminPanel() {
@@ -462,25 +476,18 @@ async function openAdminPanel() {
     $('#adminProxyUrl').value = s.proxy_url || '';
   } catch(e) {}
 }
-
 async function saveAdminSettings() {
   try {
-    await api('/api/admin/settings', { method: 'POST', body: JSON.stringify({
-      game_url: $('#adminGameUrl').value, proxy_url: $('#adminProxyUrl').value
-    })});
-    alert('تم الحفظ بنجاح');
+    await api('/api/admin/settings', { method: 'POST', body: JSON.stringify({ game_url: $('#adminGameUrl').value, proxy_url: $('#adminProxyUrl').value })});
+    alert('تم الحفظ');
   } catch(e) { alert(e.message); }
 }
-
 async function addPost() {
   try {
     const url = $('#postUrl').value;
-    await api('/api/admin/posts', { method: 'POST', body: JSON.stringify({
-      title: $('#postTitle').value, media_url: url, media_type: url.match(/\.(mp4|webm)$/i) ? 'video' : 'image'
-    })});
-    alert('تم النشر بنجاح (سيُحذف تلقائياً بعد 24 ساعة)');
-    $('#postTitle').value = ''; $('#postUrl').value = '';
-    closeModal('modalAdmin');
+    await api('/api/admin/posts', { method: 'POST', body: JSON.stringify({ title: $('#postTitle').value, media_url: url, media_type: url.match(/\.(mp4|webm)$/i) ? 'video' : 'image' })});
+    alert('تم النشر (سيُحذف بعد 24 ساعة)');
+    $('#postTitle').value = ''; $('#postUrl').value = ''; closeModal('modalAdmin');
   } catch(e) { alert(e.message); }
 }
 

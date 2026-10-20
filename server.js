@@ -12,7 +12,6 @@ const fs = require('fs');
 const axios = require('axios');
 const { wrapper } = require('axios-cookiejar-support');
 const { CookieJar } = require('tough-cookie');
-const cloudscraper = require('cloudscraper');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -80,7 +79,7 @@ setInterval(() => {
 }, 60 * 60 * 1000);
 
 // =========================================================
-// 🤖 كلاس IChancyAgent
+// 🤖 كلاس IChancyAgent (Axios + Browser Headers)
 // =========================================================
 class IChancyAgent {
   constructor() {
@@ -97,11 +96,15 @@ class IChancyAgent {
       jar: this.jar, 
       withCredentials: true,
       headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "en-US,en;q=0.9,ar;q=0.8",
         "Content-Type": "application/json",
         "Origin": this.BASE_URL,
         "Referer": `${this.BASE_URL}/`,
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Accept": "application/json, text/plain, */*"
+        "Sec-Fetch-Dest": "empty",
+        "Sec-Fetch-Mode": "cors",
+        "Sec-Fetch-Site": "same-origin"
       },
       timeout: 30000
     }));
@@ -115,42 +118,24 @@ class IChancyAgent {
     try {
       console.log(`🔄 [Agent] محاولة تسجيل الدخول إلى: ${this.BASE_URL}`);
       
-      const scraper = cloudscraper.createScraper();
-      await scraper.get(`${this.BASE_URL}/sign-in`, { timeout: 30000 }).catch(() => {});
-      
-      const loginRes = await scraper.post(`${this.BASE_URL}/global/api/User/signIn`, {
-        json: { username: this.USERNAME, password: this.PASSWORD },
-        headers: {
-          "Origin": this.BASE_URL,
-          "Referer": `${this.BASE_URL}/sign-in`,
-          "Content-Type": "application/json",
-          "Accept": "application/json, text/plain, */*"
-        },
-        timeout: 30000
+      const res = await this.client.post(`${this.BASE_URL}/global/api/User/signIn`, {
+        username: this.USERNAME,
+        password: this.PASSWORD
       });
 
-      const data = typeof loginRes.body === 'string' ? (() => {
-        try { return JSON.parse(loginRes.body); } catch { return loginRes.body; }
-      })() : loginRes.body;
-
-      if (loginRes.statusCode === 200 && data?.status && data?.result?.message === 'dashboard') {
+      if (res.status === 200 && res.data && res.data.status === true && res.data.result?.message === 'dashboard') {
         this.loggedIn = true;
         this.authCache = { loggedIn: true, lastAuthTime: now, cacheDuration: 1800 };
-        
-        const cookies = scraper.jar.getCookiesSync(this.BASE_URL);
-        cookies.forEach(cookie => this.jar.setCookieSync(cookie.toString(), this.BASE_URL));
-
-        console.log('✅ [Agent] Logged in successfully via Cloudscraper');
+        console.log('✅ [Agent] Logged in successfully via Axios');
         return true;
       } else {
-        // 🆕 طباعة الاستجابة الخام فقط في حالة الفشل
-        console.error('❌ [Agent] Login failed. Status:', loginRes.statusCode);
-        console.error('🔻 [Raw Response]:', typeof data === 'string' ? data.substring(0, 1000) : JSON.stringify(data, null, 2));
+        console.error('❌ [Agent] Login failed. Status:', res.status);
+        console.error('🔻 [Raw Response]:', typeof res.data === 'string' ? res.data.substring(0, 1000) : JSON.stringify(res.data, null, 2));
       }
     } catch (error) {
       console.error('❌ [Agent] Login Error:', error.message);
-      if (error.response && error.response.body) {
-        console.error('🔻 [Raw Error Body]:', error.response.body.substring(0, 1000));
+      if (error.response) {
+        console.error('🔻 [Raw Error Body]:', typeof error.response.data === 'string' ? error.response.data.substring(0, 1000) : JSON.stringify(error.response.data, null, 2));
       }
     }
     return false;
@@ -185,11 +170,9 @@ class IChancyAgent {
         }
       } catch (err) {
         if (err.response?.status === 401) this.authCache.loggedIn = false;
-        
-        // 🆕 طباعة تفاصيل الخطأ الخام فقط عند حدوث استثناء
         console.error(`❌ Request Error (${endpoint}):`, err.message);
         if (err.response) {
-          console.error(`🔻 [Raw Error Data for ${endpoint}]:`, typeof err.response.data === 'string' ? err.response.data.substring(0, 500) : JSON.stringify(err.response.data, null, 2));
+          console.error(`🔻 [Raw Error Data]:`, typeof err.response.data === 'string' ? err.response.data.substring(0, 500) : JSON.stringify(err.response.data, null, 2));
         }
         await new Promise(r => setTimeout(r, 2000));
       }

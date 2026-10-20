@@ -1,5 +1,5 @@
 /* =========================================================
-   ICHANCY WEBSITE - Full Server & Agent Integration
+   ICHANCY WEBSITE - Full Server & Agent Integration (Puppeteer)
    ========================================================= */
 
 const express = require('express');
@@ -12,6 +12,7 @@ const fs = require('fs');
 const axios = require('axios');
 const { wrapper } = require('axios-cookiejar-support');
 const { CookieJar } = require('tough-cookie');
+const puppeteer = require('puppeteer');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -79,7 +80,7 @@ setInterval(() => {
 }, 60 * 60 * 1000);
 
 // =========================================================
-// 🤖 كلاس IChancyAgent (Axios + Browser Headers)
+// 🤖 كلاس IChancyAgent (Puppeteer + Axios)
 // =========================================================
 class IChancyAgent {
   constructor() {
@@ -98,13 +99,9 @@ class IChancyAgent {
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "Accept": "application/json, text/plain, */*",
-        "Accept-Language": "en-US,en;q=0.9,ar;q=0.8",
         "Content-Type": "application/json",
         "Origin": this.BASE_URL,
-        "Referer": `${this.BASE_URL}/`,
-        "Sec-Fetch-Dest": "empty",
-        "Sec-Fetch-Mode": "cors",
-        "Sec-Fetch-Site": "same-origin"
+        "Referer": `${this.BASE_URL}/`
       },
       timeout: 30000
     }));
@@ -116,27 +113,53 @@ class IChancyAgent {
     if (this.authCache.loggedIn && (now - this.authCache.lastAuthTime) < this.authCache.cacheDuration) return true;
 
     try {
-      console.log(`🔄 [Agent] محاولة تسجيل الدخول إلى: ${this.BASE_URL}`);
+      console.log(`🔄 [Agent] محاولة تسجيل الدخول باستخدام Puppeteer إلى: ${this.BASE_URL}`);
       
-      const res = await this.client.post(`${this.BASE_URL}/global/api/User/signIn`, {
-        username: this.USERNAME,
-        password: this.PASSWORD
+      const browser = await puppeteer.launch({
+        headless: true,
+        args: [
+          '--no-sandbox', 
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-gpu',
+          '--window-size=1920,1080'
+        ]
       });
 
-      if (res.status === 200 && res.data && res.data.status === true && res.data.result?.message === 'dashboard') {
+      const page = await browser.newPage();
+      await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+
+      // 1. زيارة صفحة الدخول لتخطي Cloudflare
+      await page.goto(`${this.BASE_URL}/sign-in`, { waitUntil: 'networkidle2', timeout: 60000 });
+
+      // 2. إرسال بيانات الدخول من داخل المتصفح
+      const loginResponse = await page.evaluate(async (username, password) => {
+        const res = await fetch('/global/api/User/signIn', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        return await res.json();
+      }, this.USERNAME, this.PASSWORD);
+
+      if (loginResponse && loginResponse.status && loginResponse.result?.message === 'dashboard') {
+        // 3. استخراج الكوكيز ونقلها لـ Axios
+        const cookies = await page.cookies();
+        for (const cookie of cookies) {
+          await this.jar.setCookie(`${cookie.name}=${cookie.value}; Domain=${cookie.domain}; Path=${cookie.path}`, this.BASE_URL);
+        }
+
+        await browser.close();
         this.loggedIn = true;
         this.authCache = { loggedIn: true, lastAuthTime: now, cacheDuration: 1800 };
-        console.log('✅ [Agent] Logged in successfully via Axios');
+        console.log('✅ [Agent] Logged in successfully via Puppeteer');
         return true;
       } else {
-        console.error('❌ [Agent] Login failed. Status:', res.status);
-        console.error('🔻 [Raw Response]:', typeof res.data === 'string' ? res.data.substring(0, 1000) : JSON.stringify(res.data, null, 2));
+        console.error('❌ [Agent] Login failed inside Puppeteer:', JSON.stringify(loginResponse));
+        await browser.close();
       }
     } catch (error) {
-      console.error('❌ [Agent] Login Error:', error.message);
-      if (error.response) {
-        console.error('🔻 [Raw Error Body]:', typeof error.response.data === 'string' ? error.response.data.substring(0, 1000) : JSON.stringify(error.response.data, null, 2));
-      }
+      console.error('❌ [Agent] Puppeteer Login Error:', error.message);
     }
     return false;
   }
@@ -151,13 +174,7 @@ class IChancyAgent {
         if (!await this.ensureLogin()) return { error: "Login failed", status: "error" };
         const url = `${this.BASE_URL}${endpoint}`;
         
-        let res;
-        if (method === "POST") {
-          res = await this.client.post(url, payload);
-        } else {
-          res = await this.client.get(url);
-        }
-        
+        let res = method === "POST" ? await this.client.post(url, payload) : await this.client.get(url);
         this.lastRequestTime = Date.now();
 
         if (res.status === 200) {
@@ -171,9 +188,6 @@ class IChancyAgent {
       } catch (err) {
         if (err.response?.status === 401) this.authCache.loggedIn = false;
         console.error(`❌ Request Error (${endpoint}):`, err.message);
-        if (err.response) {
-          console.error(`🔻 [Raw Error Data]:`, typeof err.response.data === 'string' ? err.response.data.substring(0, 500) : JSON.stringify(err.response.data, null, 2));
-        }
         await new Promise(r => setTimeout(r, 2000));
       }
     }

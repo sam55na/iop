@@ -71,6 +71,11 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
 .admin-btn { background: rgba(255, 215, 0, 0.1); border:1px solid rgba(255, 215, 0, 0.4); color:#ffd700; padding:6px 12px; border-radius:8px; cursor:pointer; font-weight:700; font-size:12px; display:none; transition: .3s; }
 .admin-btn:hover { background: rgba(255, 215, 0, 0.2); box-shadow: 0 0 15px rgba(255,215,0,.4); }
 
+.user-notif-btn { position: relative; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); color: #e6ecff; width: 36px; height: 36px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: .3s; }
+.user-notif-btn:hover { background: rgba(0,212,255,.1); border-color: #00d4ff; }
+.user-notif-btn .nb { position: absolute; top: -4px; right: -4px; min-width: 18px; height: 18px; background: #ff006e; border-radius: 999px; font-size: 10px; font-weight: 900; display: flex; align-items: center; justify-content: center; color: #fff; box-shadow: 0 0 8px #ff006e; padding: 0 4px; }
+.user-notif-btn .nb.hidden { display: none; }
+
 .balance-bar { display:flex; align-items:center; justify-content:space-between; padding:6px 20px; background: rgba(10,14,30,.85); backdrop-filter: blur(20px); border-bottom:1px solid rgba(168,85,247,.2); position:sticky; top:60px; z-index:99; box-shadow: 0 5px 20px rgba(0,0,0,.5); }
 .balance-label { color:#8892b0; font-size:11px; font-weight:600; }
 .balance-value { font-size:20px; font-weight:900; background: linear-gradient(90deg,#00d4ff,#a855f7); -webkit-background-clip:text; -webkit-text-fill-color:transparent; filter: drop-shadow(0 0 10px rgba(0,212,255,.5)); }
@@ -116,13 +121,11 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
 .admin-pane { display: none; }
 .admin-pane.active { display: block; animation: fadeIn .3s ease; }
 
-/* Stats Grid */
 .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
 .stat-card { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 15px; text-align: center; }
 .stat-card .num { font-size: 22px; font-weight: 900; color: #00d4ff; text-shadow: 0 0 10px rgba(0,212,255,.5); }
 .stat-card .lbl { font-size: 11px; color: #8892b0; margin-top: 4px; }
 
-/* Logs */
 .log-item { padding: 12px; margin-bottom: 8px; border-radius: 10px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06); cursor: pointer; transition: .3s; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .log-item:hover { background: rgba(0,212,255,.08); border-color: rgba(0,212,255,.3); }
 .log-item .log-main { flex: 1; min-width: 0; }
@@ -131,7 +134,6 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
 .log-item .log-time { font-size: 11px; color: #5a6480; white-space: nowrap; }
 .log-item .log-user { color: #00d4ff; font-weight: 700; }
 
-/* Method cards */
 .method-card { padding: 15px; margin-bottom: 10px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
 .method-card .info { flex: 1; min-width: 0; }
 .method-card .m-name { font-weight: 700; color: #fff; margin-bottom: 4px; }
@@ -145,7 +147,6 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
 .btn-gold:hover { background: rgba(255,215,0,.25); }
 .btn-sm { padding: 6px 12px; font-size: 11px; }
 
-/* Withdraw request card */
 .wreq-card { padding: 15px; margin-bottom: 12px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; }
 .wreq-card.pending { border-color: rgba(255,215,0,.4); box-shadow: 0 0 15px rgba(255,215,0,.1); }
 .wreq-card.approved { border-color: rgba(34,197,94,.4); }
@@ -166,7 +167,6 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
 .status-badge.approved { background: rgba(34,197,94,.15); color: #4ade80; }
 .status-badge.rejected { background: rgba(255,80,80,.15); color: #ff6b6b; }
 
-/* Users */
 .user-row { padding: 12px; margin-bottom: 8px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06); border-radius: 10px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
 .user-row .u-info { flex: 1; min-width: 0; }
 .user-row .u-name { font-weight: 700; color: #fff; margin-bottom: 3px; }
@@ -174,7 +174,6 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
 .user-row .u-meta b { color: #00d4ff; }
 .user-row .u-actions { display: flex; gap: 6px; flex-wrap: wrap; }
 
-/* Withdraw flow */
 .wd-step { display: none; }
 .wd-step.active { display: block; animation: fadeIn .3s ease; }
 .wd-method-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
@@ -194,15 +193,122 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
 
 .empty-state { text-align: center; padding: 30px 15px; color: #8892b0; font-size: 13px; }
 
-/* Detail sections */
 .detail-row { padding: 10px; margin-bottom: 6px; background: rgba(255,255,255,.02); border-radius: 8px; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 13px; }
 .detail-row .k { color: #8892b0; }
 .detail-row .v { color: #fff; font-weight: 700; word-break: break-word; text-align: left; max-width: 60%; }
+
+/* ====================== زر الدعم العائم ====================== */
+.support-fab {
+  position: fixed; bottom: 24px; left: 24px; width: 60px; height: 60px;
+  border-radius: 50%; background: linear-gradient(135deg,#00d4ff,#a855f7);
+  border: none; cursor: pointer; color: #fff; font-size: 26px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 10px 30px rgba(0,212,255,.5), 0 0 20px rgba(168,85,247,.4);
+  z-index: 99998; transition: all .3s; animation: fabPulse 2.5s infinite;
+}
+.support-fab:hover { transform: scale(1.1); box-shadow: 0 15px 40px rgba(0,212,255,.7); }
+.support-fab .fab-badge {
+  position: absolute; top: -2px; right: -2px; min-width: 20px; height: 20px;
+  background: #ff006e; border-radius: 999px; font-size: 11px; font-weight: 900;
+  display: flex; align-items: center; justify-content: center; color: #fff;
+  box-shadow: 0 0 10px #ff006e; padding: 0 5px;
+}
+.support-fab .fab-badge.hidden { display: none; }
+@keyframes fabPulse {
+  0%,100% { box-shadow: 0 10px 30px rgba(0,212,255,.5), 0 0 20px rgba(168,85,247,.4); }
+  50% { box-shadow: 0 10px 40px rgba(0,212,255,.8), 0 0 30px rgba(168,85,247,.6); }
+}
+
+/* ====================== نافذة المحادثة العائمة ====================== */
+.support-chat {
+  position: fixed; bottom: 100px; left: 24px; width: 360px; max-width: calc(100vw - 48px);
+  height: 500px; max-height: calc(100vh - 140px);
+  background: rgba(15,18,35,.98); backdrop-filter: blur(25px);
+  border: 1px solid rgba(0,212,255,.4); border-radius: 20px;
+  box-shadow: 0 25px 60px rgba(0,0,0,.9), 0 0 30px rgba(0,212,255,.2);
+  display: none; flex-direction: column; z-index: 99997; overflow: hidden;
+  animation: chatIn .3s cubic-bezier(.2,.9,.3,1.2);
+}
+.support-chat.open { display: flex; }
+@keyframes chatIn { from { opacity: 0; transform: translateY(20px) scale(.95); } to { opacity: 1; transform: none; } }
+.support-chat .chat-header {
+  padding: 15px 18px; background: linear-gradient(135deg, rgba(0,212,255,.15), rgba(168,85,247,.15));
+  border-bottom: 1px solid rgba(0,212,255,.3); display: flex; justify-content: space-between; align-items: center;
+}
+.support-chat .chat-title { font-weight: 900; color: #fff; font-size: 15px; }
+.support-chat .chat-status { font-size: 11px; color: #4ade80; margin-top: 2px; }
+.support-chat .chat-close {
+  background: rgba(255,80,80,.15); border: 1px solid rgba(255,80,80,.4); color: #ff6b6b;
+  width: 28px; height: 28px; border-radius: 8px; cursor: pointer; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; transition: .3s;
+}
+.support-chat .chat-close:hover { background: rgba(255,80,80,.35); }
+.support-chat .chat-body {
+  flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px;
+  background: radial-gradient(circle at top, rgba(0,212,255,.03), transparent 50%);
+}
+.support-chat .chat-empty {
+  text-align: center; color: #8892b0; font-size: 13px; padding: 30px 15px; line-height: 1.8;
+}
+.chat-msg { max-width: 80%; padding: 10px 14px; border-radius: 14px; font-size: 13px; line-height: 1.5; word-wrap: break-word; animation: msgIn .3s ease; }
+@keyframes msgIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+.chat-msg.user { align-self: flex-end; background: linear-gradient(135deg,#00d4ff,#0288d1); color: #fff; border-bottom-right-radius: 4px; }
+.chat-msg.admin { align-self: flex-start; background: rgba(168,85,247,.25); border: 1px solid rgba(168,85,247,.4); color: #fff; border-bottom-left-radius: 4px; }
+.chat-msg .msg-meta { font-size: 10px; opacity: .7; margin-top: 4px; }
+.chat-msg .msg-sender { font-weight: 700; font-size: 11px; margin-bottom: 2px; opacity: .9; }
+.support-chat .chat-input-area {
+  padding: 12px; border-top: 1px solid rgba(255,255,255,.08); display: flex; gap: 8px;
+  background: rgba(0,0,0,.2);
+}
+.support-chat .chat-input {
+  flex: 1; padding: 10px 14px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+  border-radius: 10px; color: #fff; font-size: 13px; outline: none; resize: none; max-height: 80px;
+  font-family: inherit;
+}
+.support-chat .chat-input:focus { border-color: #00d4ff; box-shadow: 0 0 10px rgba(0,212,255,.3); }
+.support-chat .chat-send {
+  background: linear-gradient(135deg,#00d4ff,#a855f7); border: none; color: #fff;
+  width: 42px; height: 42px; border-radius: 10px; cursor: pointer; font-size: 18px;
+  display: flex; align-items: center; justify-content: center; transition: .3s;
+}
+.support-chat .chat-send:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(0,212,255,.6); }
+.support-chat .chat-send:disabled { opacity: .5; cursor: not-allowed; }
+.support-chat .chat-closed-notice {
+  padding: 10px; background: rgba(255,80,80,.1); border-top: 1px solid rgba(255,80,80,.3);
+  color: #ff6b6b; font-size: 12px; text-align: center; font-weight: 700;
+}
+
+/* Support admin styles */
+.support-ticket-row {
+  padding: 12px; margin-bottom: 8px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06);
+  border-radius: 10px; cursor: pointer; transition: .3s;
+}
+.support-ticket-row:hover { background: rgba(0,212,255,.08); border-color: rgba(0,212,255,.3); }
+.support-ticket-row.has-unread { border-color: rgba(255,0,110,.5); background: rgba(255,0,110,.05); }
+.support-ticket-row .st-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; gap: 8px; flex-wrap: wrap; }
+.support-ticket-row .st-name { font-weight: 700; color: #00d4ff; }
+.support-ticket-row .st-badge { background: #ff006e; color: #fff; font-size: 10px; padding: 2px 8px; border-radius: 999px; font-weight: 900; }
+.support-ticket-row .st-last { font-size: 12px; color: #8892b0; margin-top: 4px; word-break: break-word; }
+.support-ticket-row .st-time { font-size: 10px; color: #5a6480; margin-top: 4px; }
+
+.chat-admin-view {
+  display: flex; flex-direction: column; gap: 10px; max-height: 400px; overflow-y: auto;
+  padding: 12px; background: rgba(0,0,0,.2); border-radius: 12px; margin: 12px 0;
+}
+.chat-admin-view .chat-msg { max-width: 85%; }
+.chat-admin-reply { display: flex; gap: 8px; }
+.chat-admin-reply textarea {
+  flex: 1; padding: 10px; background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.1);
+  border-radius: 10px; color: #fff; font-family: inherit; font-size: 13px; resize: none; outline: none;
+}
+.chat-admin-reply textarea:focus { border-color: #00d4ff; }
 
 @media (max-width: 500px) {
   .modal-content { padding: 18px; border-radius: 16px; }
   .admin-tab { font-size: 12px; padding: 8px 12px; }
   .detail-row .v { max-width: 100%; }
+  .support-chat { width: calc(100vw - 32px); left: 16px; }
+  .support-fab { bottom: 16px; left: 16px; width: 54px; height: 54px; font-size: 22px; }
 }
 </style>
 </head>
@@ -241,6 +347,7 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
   <div class="topbar">
     <div class="brand">World War</div>
     <div class="user-area">
+      <button class="user-notif-btn" id="userNotifBtn" onclick="openUserNotifs()">🔔<span class="nb hidden" id="userNotifBadge">0</span></button>
       <button class="admin-btn" id="adminBtn" onclick="openAdminPanel()">إدارة</button>
       <div class="user-chip"><div class="avatar" id="avatar">U</div></div>
       <button class="logout-btn" id="logoutBtn">خروج</button>
@@ -274,12 +381,10 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
       <button class="close-modal" onclick="closeModal('modalWithdraw')">X</button>
     </div>
     <div id="wdCooldownBox"></div>
-    <!-- Step 1: اختيار الطريقة -->
     <div class="wd-step active" id="wdStep1">
       <p style="font-size:13px;color:#8892b0;margin-bottom:15px;">اختر طريقة السحب:</p>
       <div class="wd-method-grid" id="wdMethodGrid"></div>
     </div>
-    <!-- Step 2: المبلغ -->
     <div class="wd-step" id="wdStep2">
       <div class="input-group" style="margin-bottom:15px;">
         <input type="number" id="wdAmount" placeholder=" " min="0" step="any">
@@ -288,7 +393,6 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
       <div id="wdAmountInfo" style="font-size:12px;color:#8892b0;margin-bottom:15px;"></div>
       <button class="btn-primary" style="width:100%;" onclick="wdGoStep3()">التالي</button>
     </div>
-    <!-- Step 3: العنوان -->
     <div class="wd-step" id="wdStep3">
       <div class="input-group" style="margin-bottom:15px;">
         <textarea id="wdAddress" placeholder=" " autocomplete="off"></textarea>
@@ -296,7 +400,6 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
       </div>
       <button class="btn-primary" style="width:100%;" onclick="wdGoStep4()">التالي</button>
     </div>
-    <!-- Step 4: تأكيد -->
     <div class="wd-step" id="wdStep4">
       <p style="font-size:13px;color:#ffd700;margin-bottom:10px;font-weight:700;">تأكيد بيانات السحب:</p>
       <div class="wd-summary" id="wdSummary"></div>
@@ -336,9 +439,10 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
       <button class="admin-tab" data-atab="methods">طرق السحب</button>
       <button class="admin-tab" data-atab="requests">طلبات السحب</button>
       <button class="admin-tab" data-atab="users">المستخدمون</button>
+      <button class="admin-tab" data-atab="support">الدعم</button>
+      <button class="admin-tab" data-atab="broadcast">إشعار جماعي</button>
     </div>
 
-    <!-- Pane: Logs -->
     <div class="admin-pane active" id="pane-logs">
       <div class="stats-grid" id="statsGrid"></div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -348,7 +452,6 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
       <div id="logsList"><div class="empty-state">جاري التحميل...</div></div>
     </div>
 
-    <!-- Pane: Methods -->
     <div class="admin-pane" id="pane-methods">
       <div style="background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.2);border-radius:12px;padding:15px;margin-bottom:15px;">
         <div style="font-weight:700;color:#00d4ff;margin-bottom:12px;font-size:14px;">إضافة طريقة سحب جديدة</div>
@@ -361,7 +464,6 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
       <div id="methodsList"><div class="empty-state">جاري التحميل...</div></div>
     </div>
 
-    <!-- Pane: Requests -->
     <div class="admin-pane" id="pane-requests">
       <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
         <button class="admin-tab active btn-sm" data-reqstatus="pending" onclick="setReqStatus('pending', this)">قيد الانتظار</button>
@@ -372,13 +474,31 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
       <div id="requestsList"><div class="empty-state">جاري التحميل...</div></div>
     </div>
 
-    <!-- Pane: Users -->
     <div class="admin-pane" id="pane-users">
       <div style="display:flex;gap:8px;margin-bottom:12px;">
         <div class="input-group" style="flex:1;"><input type="text" id="userSearch" placeholder=" "><label>بحث بالاسم</label></div>
         <button class="btn-gold" onclick="loadAdminUsers()">بحث</button>
       </div>
       <div id="usersList"><div class="empty-state">جاري التحميل...</div></div>
+    </div>
+
+    <div class="admin-pane" id="pane-support">
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+        <button class="admin-tab active btn-sm" data-supstatus="open" onclick="setSupStatus('open', this)">مفتوحة</button>
+        <button class="admin-tab btn-sm" data-supstatus="closed" onclick="setSupStatus('closed', this)">مغلقة</button>
+        <button class="admin-tab btn-sm" data-supstatus="all" onclick="setSupStatus('all', this)">الكل</button>
+        <button class="btn-gold btn-sm" onclick="loadSupportTickets()">تحديث</button>
+      </div>
+      <div id="supportTicketsList"><div class="empty-state">جاري التحميل...</div></div>
+    </div>
+
+    <div class="admin-pane" id="pane-broadcast">
+      <div style="background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.2);border-radius:12px;padding:15px;">
+        <div style="font-weight:700;color:#00d4ff;margin-bottom:12px;font-size:14px;">إرسال إشعار جماعي لجميع المستخدمين</div>
+        <div class="input-group" style="margin-bottom:10px;"><input type="text" id="bcTitle" placeholder=" " maxlength="100"><label>عنوان الإشعار</label></div>
+        <div class="input-group" style="margin-bottom:12px;"><textarea id="bcBody" placeholder=" " maxlength="1000" style="min-height:100px;"></textarea><label>نص الإشعار</label></div>
+        <button class="btn-success" style="width:100%;padding:12px;" onclick="sendBroadcast()">إرسال للجميع</button>
+      </div>
     </div>
   </div>
 </div>
@@ -405,11 +525,66 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
   </div>
 </div>
 
+<!-- Modal: محادثة تذكرة -->
+<div class="modal-overlay" id="modalTicket">
+  <div class="modal-content" style="max-width:600px;">
+    <div class="modal-header">
+      <div class="modal-title" id="ticketTitle">تذكرة</div>
+      <button class="close-modal" onclick="closeModal('modalTicket')">X</button>
+    </div>
+    <div class="chat-admin-view" id="ticketMessages"></div>
+    <div class="chat-admin-reply" id="ticketReplyArea">
+      <textarea id="ticketReplyInput" placeholder="اكتب ردك..." rows="2" maxlength="2000"></textarea>
+      <button class="btn-success" onclick="sendTicketReply()">إرسال</button>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px;">
+      <button class="btn-danger" style="flex:1;" onclick="closeTicket()">إغلاق التذكرة</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: إشعارات المستخدم -->
+<div class="modal-overlay" id="modalUserNotifs">
+  <div class="modal-content" style="max-width:520px;">
+    <div class="modal-header">
+      <div class="modal-title">إشعاراتي</div>
+      <button class="close-modal" onclick="closeModal('modalUserNotifs')">X</button>
+    </div>
+    <div id="userNotifsList"><div class="empty-state">جاري التحميل...</div></div>
+    <button class="btn-primary" style="width:100%;margin-top:12px;" onclick="markNotifsRead()">تحديد الكل كمقروء</button>
+  </div>
+</div>
+
+<!-- زر الدعم العائم -->
+<button class="support-fab" id="supportFab" onclick="toggleSupportChat()" title="الدعم الفني">
+  💬
+  <span class="fab-badge hidden" id="supportBadge">0</span>
+</button>
+
+<!-- نافذة المحادثة العائمة -->
+<div class="support-chat" id="supportChat">
+  <div class="chat-header">
+    <div>
+      <div class="chat-title">الدعم الفني</div>
+      <div class="chat-status" id="chatStatus">متصل الآن</div>
+    </div>
+    <button class="chat-close" onclick="toggleSupportChat()">X</button>
+  </div>
+  <div class="chat-body" id="chatBody">
+    <div class="chat-empty">مرحباً! كيف يمكننا مساعدتك؟<br>اكتب رسالتك وسنرد عليك في أقرب وقت.</div>
+  </div>
+  <div class="chat-input-area" id="chatInputArea">
+    <textarea class="chat-input" id="chatInput" placeholder="اكتب رسالتك..." rows="1" maxlength="2000"></textarea>
+    <button class="chat-send" id="chatSendBtn" onclick="sendSupportMessage()">➤</button>
+  </div>
+  <div class="chat-closed-notice" id="chatClosedNotice" style="display:none;">تم إغلاق هذه المحادثة من قِبل الإدارة.</div>
+</div>
+
 <script>
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
 let currentUser = null;
-let adminToken = null; // توكن الإدارة بعد إدخال كلمة المرور
+let adminToken = null;
 
 /* ====================== Toast ====================== */
 function showToast(message, type = 'success', duration = 3000) {
@@ -431,7 +606,6 @@ async function api(url, options={}) {
   if (!res.ok) throw new Error(data.error || 'حدث خطأ');
   return data;
 }
-
 async function adminFetch(url, options = {}) {
   if (!adminToken) throw new Error('جلسة الإدارة مغلقة، أعد فتح اللوحة');
   const headers = { 'Content-Type': 'application/json', ...(options.headers || {}), 'X-Admin-Token': adminToken };
@@ -440,7 +614,6 @@ async function adminFetch(url, options = {}) {
   if (!res.ok) throw new Error(data.error || 'خطأ');
   return data;
 }
-
 function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function fmtDate(s){ if(!s) return '-'; try { return new Date(s.replace(' ', 'T') + 'Z').toLocaleString('ar-EG'); } catch(e){ return s; } }
 function fmtMoney(n){ return Number(n||0).toFixed(2); }
@@ -509,6 +682,8 @@ async function enterDashboard() {
       const { isAdminCandidate } = await api('/api/admin/check');
       if (isAdminCandidate) $('#adminBtn').style.display = 'inline-block';
     } catch(e){}
+    checkUserNotifs();
+    checkSupportUnread();
   } catch(err){}
 }
 async function refreshMe() {
@@ -519,12 +694,10 @@ async function refreshMe() {
   } catch(e){}
 }
 
-/* ====================== Actions ====================== */
 function doAction(type) {
   if (type === 'deposit') showToast('ميزة الإيداع قيد التطوير', 'info');
 }
 
-/* ====================== Modals Helpers ====================== */
 function openModal(id){ document.getElementById(id).classList.add('open'); }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 
@@ -572,9 +745,7 @@ function wdGoStep(n){
     $('#wdAmountInfo').innerHTML = `أقل مبلغ: <b>${fmtMoney(wdState.method.min_amount)}</b> · العمولة: <b>${wdState.method.fee_percent}%</b>`;
     $('#wdAmount').value = '';
   }
-  if (n === 3) {
-    $('#wdAddress').value = ''; // تصفير صريح - لا حفظ للعنوان
-  }
+  if (n === 3) { $('#wdAddress').value = ''; }
   if (n === 4) {
     const amt = Number(wdState.amount);
     const fee = +(amt * wdState.method.fee_percent / 100).toFixed(2);
@@ -597,14 +768,12 @@ function wdGoStep3(){
   wdState.amount = v;
   wdGoStep(3);
 }
-
 function wdGoStep4(){
   const a = $('#wdAddress').value.trim();
   if (!a) { showToast('أدخل عنوانك', 'error'); return; }
   wdState.address = a;
   wdGoStep(4);
 }
-
 async function wdSubmit(){
   try {
     await refreshMe();
@@ -624,7 +793,6 @@ function openAdminPanel() {
   $('#adminPasswordInput').value = '';
   setTimeout(() => $('#adminPasswordInput').focus(), 100);
 }
-
 async function unlockAdmin() {
   const pwd = $('#adminPasswordInput').value;
   if (!pwd) { showToast('أدخل كلمة المرور', 'error'); return; }
@@ -634,11 +802,8 @@ async function unlockAdmin() {
     closeModal('modalAdminPassword');
     showToast('تم فتح لوحة الإدارة', 'success');
     await openRealAdminPanel();
-  } catch (err) {
-    showToast(err.message, 'error');
-  }
+  } catch (err) { showToast(err.message, 'error'); }
 }
-
 async function openRealAdminPanel() {
   openModal('modalAdmin');
   $$('.admin-tab[data-atab]').forEach(t => t.classList.toggle('active', t.dataset.atab === 'logs'));
@@ -646,7 +811,6 @@ async function openRealAdminPanel() {
   $('#pane-logs').classList.add('active');
   await Promise.all([loadStats(), loadAdminLogs()]);
 }
-
 $$('.admin-tab[data-atab]').forEach(el => {
   el.addEventListener('click', async () => {
     const t = el.dataset.atab;
@@ -657,6 +821,7 @@ $$('.admin-tab[data-atab]').forEach(el => {
     if (t === 'methods') await loadMethods();
     if (t === 'requests') await loadRequests();
     if (t === 'users') await loadAdminUsers();
+    if (t === 'support') await loadSupportTickets();
   });
 });
 
@@ -668,10 +833,10 @@ async function loadStats(){
       <div class="stat-card"><div class="num">${fmtMoney(s.totalBalance)}</div><div class="lbl">إجمالي الأرصدة</div></div>
       <div class="stat-card"><div class="num">${s.pendingWithdraws}</div><div class="lbl">طلبات سحب معلقة</div></div>
       <div class="stat-card"><div class="num">${s.methods}</div><div class="lbl">طرق السحب</div></div>
+      <div class="stat-card"><div class="num">${s.openTickets||0}</div><div class="lbl">تذاكر دعم مفتوحة</div></div>
     `;
   } catch(e){}
 }
-
 async function loadAdminLogs(){
   try {
     const { logs } = await adminFetch('/api/admin/logs?limit=100');
@@ -687,7 +852,6 @@ async function loadAdminLogs(){
     `).join('');
   } catch(err){ $('#logsList').innerHTML = '<div class="empty-state">خطأ في التحميل</div>'; }
 }
-
 async function openLogDetail(id){
   try {
     const { log, user } = await adminFetch('/api/admin/logs/' + id);
@@ -713,7 +877,6 @@ async function openLogDetail(id){
   } catch(err){ showToast(err.message, 'error'); }
 }
 
-/* ====================== Methods ====================== */
 async function loadMethods(){
   try {
     const { methods } = await adminFetch('/api/admin/withdraw-methods');
@@ -729,7 +892,6 @@ async function loadMethods(){
     `).join('');
   } catch(err){ $('#methodsList').innerHTML = '<div class="empty-state">خطأ</div>'; }
 }
-
 async function addWithdrawMethod(){
   const name = $('#newMethodName').value.trim();
   const min_amount = Number($('#newMethodMin').value) || 0;
@@ -743,7 +905,6 @@ async function addWithdrawMethod(){
     await loadMethods();
   } catch(err){ showToast(err.message, 'error'); }
 }
-
 async function deleteMethod(id, name){
   if (!confirm(`حذف طريقة "${name}"؟`)) return;
   try {
@@ -753,7 +914,6 @@ async function deleteMethod(id, name){
   } catch(err){ showToast(err.message, 'error'); }
 }
 
-/* ====================== Requests ====================== */
 let reqStatus = 'pending';
 function setReqStatus(s, btn){
   reqStatus = s;
@@ -799,7 +959,6 @@ async function rejectReq(id){
   catch(err){ showToast(err.message, 'error'); }
 }
 
-/* ====================== Users ====================== */
 async function loadAdminUsers(){
   try {
     const q = $('#userSearch').value.trim();
@@ -819,7 +978,6 @@ async function loadAdminUsers(){
     `).join('');
   } catch(err){ $('#usersList').innerHTML = '<div class="empty-state">خطأ</div>'; }
 }
-
 async function editBalance(id, name, current){
   const input = prompt(`تعديل رصيد "${name}"\nالرصيد الحالي: ${current}\n\nأدخل المبلغ (موجب = إضافة، سالب = خصم):`);
   if (input === null) return;
@@ -831,7 +989,6 @@ async function editBalance(id, name, current){
     loadAdminUsers();
   } catch(err){ showToast(err.message, 'error'); }
 }
-
 async function viewUser(id){
   try {
     const { user, withdraws, logs } = await adminFetch('/api/admin/users/' + id);
@@ -865,11 +1022,220 @@ async function viewUser(id){
         </div>
       `).join('');
     } else html += '<div class="empty-state">لا يوجد نشاط</div>';
-
     $('#userDetailContent').innerHTML = html;
     openModal('modalUserDetail');
   } catch(err){ showToast(err.message, 'error'); }
 }
+
+/* ====================== Support Chat (User) ====================== */
+let supportChatOpen = false;
+let supportPollTimer = null;
+let lastSupportMsgId = 0;
+
+function toggleSupportChat() {
+  supportChatOpen = !supportChatOpen;
+  $('#supportChat').classList.toggle('open', supportChatOpen);
+  if (supportChatOpen) {
+    loadSupportMessages();
+    startSupportPolling();
+  } else {
+    stopSupportPolling();
+  }
+}
+async function loadSupportMessages() {
+  try {
+    const { ticket, messages } = await api('/api/support/ticket');
+    renderSupportMessages(messages, ticket);
+    lastSupportMsgId = messages.length ? messages[messages.length - 1].id : 0;
+    checkSupportUnread();
+  } catch(err) { console.error(err); }
+}
+function renderSupportMessages(messages, ticket) {
+  const box = $('#chatBody');
+  if (ticket.status !== 'open') {
+    $('#chatClosedNotice').style.display = 'block';
+    $('#chatInputArea').style.display = 'none';
+    $('#chatStatus').textContent = 'مغلقة';
+    $('#chatStatus').style.color = '#ff6b6b';
+  } else {
+    $('#chatClosedNotice').style.display = 'none';
+    $('#chatInputArea').style.display = 'flex';
+    $('#chatStatus').textContent = 'متصل الآن';
+    $('#chatStatus').style.color = '#4ade80';
+  }
+  if (!messages.length) {
+    box.innerHTML = '<div class="chat-empty">مرحباً! كيف يمكننا مساعدتك؟<br>اكتب رسالتك وسنرد عليك في أقرب وقت.</div>';
+    return;
+  }
+  box.innerHTML = messages.map(m => `
+    <div class="chat-msg ${m.sender_role === 'user' ? 'user' : 'admin'}">
+      ${m.sender_role === 'admin' ? `<div class="msg-sender">${esc(m.sender_name)}</div>` : ''}
+      <div>${esc(m.body).replace(/\n/g,'<br>')}</div>
+      <div class="msg-meta">${fmtDate(m.created_at)}</div>
+    </div>
+  `).join('');
+  box.scrollTop = box.scrollHeight;
+}
+async function sendSupportMessage() {
+  const input = $('#chatInput');
+  const body = input.value.trim();
+  if (!body) return;
+  $('#chatSendBtn').disabled = true;
+  try {
+    await api('/api/support/message', { method:'POST', body: JSON.stringify({ body }) });
+    input.value = '';
+    await loadSupportMessages();
+  } catch(err) { showToast(err.message, 'error'); }
+  finally { $('#chatSendBtn').disabled = false; }
+}
+$('#chatInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendSupportMessage(); }
+});
+function startSupportPolling() {
+  stopSupportPolling();
+  supportPollTimer = setInterval(async () => {
+    try {
+      const { messages } = await api('/api/support/ticket');
+      const newId = messages.length ? messages[messages.length - 1].id : 0;
+      if (newId > lastSupportMsgId) {
+        const { ticket } = await api('/api/support/ticket');
+        renderSupportMessages(messages, ticket);
+        lastSupportMsgId = newId;
+      }
+    } catch(e){}
+  }, 5000);
+}
+function stopSupportPolling() { if (supportPollTimer) { clearInterval(supportPollTimer); supportPollTimer = null; } }
+async function checkSupportUnread() {
+  try {
+    const { unread } = await api('/api/support/unread-count');
+    const b = $('#supportBadge');
+    if (unread > 0) { b.textContent = unread; b.classList.remove('hidden'); } else b.classList.add('hidden');
+  } catch(e){}
+}
+
+/* ====================== User Notifications ====================== */
+async function checkUserNotifs() {
+  try {
+    const { unread } = await api('/api/notifications');
+    const b = $('#userNotifBadge');
+    if (unread > 0) { b.textContent = unread; b.classList.remove('hidden'); } else b.classList.add('hidden');
+  } catch(e){}
+}
+async function openUserNotifs() {
+  openModal('modalUserNotifs');
+  try {
+    const { notifications } = await api('/api/notifications');
+    if (!notifications.length) { $('#userNotifsList').innerHTML = '<div class="empty-state">لا توجد إشعارات</div>'; return; }
+    $('#userNotifsList').innerHTML = notifications.map(n => `
+      <div class="log-item" style="cursor:default;${n.is_read ? '' : 'border-color:rgba(0,212,255,.4);background:rgba(0,212,255,.05);'}">
+        <div class="log-main">
+          <div class="log-action" style="color:#fff;font-weight:700;">${esc(n.title)}</div>
+          <div class="log-details">${esc(n.body).replace(/\n/g,'<br>')}</div>
+        </div>
+        <div class="log-time">${fmtDate(n.created_at)}</div>
+      </div>
+    `).join('');
+  } catch(err) { $('#userNotifsList').innerHTML = '<div class="empty-state">خطأ</div>'; }
+}
+async function markNotifsRead() {
+  try {
+    await api('/api/notifications/read', { method:'POST' });
+    showToast('تم تحديد الكل كمقروء', 'success');
+    checkUserNotifs();
+    closeModal('modalUserNotifs');
+  } catch(err) { showToast(err.message, 'error'); }
+}
+
+/* ====================== Admin Support ====================== */
+let supStatus = 'open';
+let currentTicketId = null;
+function setSupStatus(s, btn) {
+  supStatus = s;
+  $$('[data-supstatus]').forEach(b => b.classList.toggle('active', b === btn));
+  loadSupportTickets();
+}
+async function loadSupportTickets() {
+  try {
+    const { tickets } = await adminFetch('/api/admin/support/tickets?status=' + supStatus);
+    if (!tickets.length) { $('#supportTicketsList').innerHTML = '<div class="empty-state">لا توجد تذاكر</div>'; return; }
+    $('#supportTicketsList').innerHTML = tickets.map(t => `
+      <div class="support-ticket-row ${t.unread_count > 0 ? 'has-unread' : ''}" onclick="openTicket(${t.id})">
+        <div class="st-head">
+          <div class="st-name">${esc(t.user_name)}</div>
+          ${t.unread_count > 0 ? `<span class="st-badge">${t.unread_count} جديد</span>` : ''}
+          <span class="status-badge ${t.status === 'open' ? 'pending' : 'approved'}">${t.status === 'open' ? 'مفتوحة' : 'مغلقة'}</span>
+        </div>
+        <div class="st-last">${t.last_message ? esc(t.last_message.body).substring(0,100) + (t.last_message.body.length > 100 ? '...' : '') : 'لا رسائل'}</div>
+        <div class="st-time">تحديث: ${fmtDate(t.updated_at)}</div>
+      </div>
+    `).join('');
+  } catch(err) { $('#supportTicketsList').innerHTML = '<div class="empty-state">خطأ</div>'; }
+}
+async function openTicket(id) {
+  currentTicketId = id;
+  try {
+    const { ticket, messages } = await adminFetch('/api/admin/support/tickets/' + id);
+    $('#ticketTitle').textContent = `تذكرة #${ticket.id} - ${ticket.user_name}`;
+    const box = $('#ticketMessages');
+    if (!messages.length) {
+      box.innerHTML = '<div class="empty-state">لا توجد رسائل بعد</div>';
+    } else {
+      box.innerHTML = messages.map(m => `
+        <div class="chat-msg ${m.sender_role === 'user' ? 'user' : 'admin'}">
+          <div class="msg-sender">${esc(m.sender_name)}</div>
+          <div>${esc(m.body).replace(/\n/g,'<br>')}</div>
+          <div class="msg-meta">${fmtDate(m.created_at)}</div>
+        </div>
+      `).join('');
+      box.scrollTop = box.scrollHeight;
+    }
+    if (ticket.status === 'open') {
+      $('#ticketReplyArea').style.display = 'flex';
+    } else {
+      $('#ticketReplyArea').style.display = 'none';
+    }
+    $('#ticketReplyInput').value = '';
+    openModal('modalTicket');
+    loadSupportTickets();
+  } catch(err) { showToast(err.message, 'error'); }
+}
+async function sendTicketReply() {
+  const body = $('#ticketReplyInput').value.trim();
+  if (!body) { showToast('اكتب رسالة', 'error'); return; }
+  try {
+    await adminFetch('/api/admin/support/tickets/' + currentTicketId + '/reply', { method:'POST', body: JSON.stringify({ body }) });
+    showToast('تم إرسال الرد', 'success');
+    await openTicket(currentTicketId);
+  } catch(err) { showToast(err.message, 'error'); }
+}
+async function closeTicket() {
+  if (!confirm('إغلاق التذكرة؟ سيتم إشعار المستخدم.')) return;
+  try {
+    await adminFetch('/api/admin/support/tickets/' + currentTicketId + '/close', { method:'POST' });
+    showToast('تم إغلاق التذكرة', 'success');
+    closeModal('modalTicket');
+    loadSupportTickets();
+  } catch(err) { showToast(err.message, 'error'); }
+}
+
+/* ====================== Broadcast ====================== */
+async function sendBroadcast() {
+  const title = $('#bcTitle').value.trim();
+  const body = $('#bcBody').value.trim();
+  if (!title || !body) { showToast('أدخل العنوان والنص', 'error'); return; }
+  if (!confirm(`إرسال إشعار لجميع المستخدمين بعنوان:\n"${title}"؟`)) return;
+  try {
+    const res = await adminFetch('/api/admin/broadcast', { method:'POST', body: JSON.stringify({ title, body }) });
+    showToast(`تم الإرسال لـ ${res.sent} مستخدم`, 'success');
+    $('#bcTitle').value = ''; $('#bcBody').value = '';
+  } catch(err) { showToast(err.message, 'error'); }
+}
+
+/* ====================== Polling عام ====================== */
+setInterval(() => {
+  if (currentUser) { checkUserNotifs(); checkSupportUnread(); }
+}, 10000);
 
 /* ====================== Init ====================== */
 (async () => { try { await enterDashboard(); } catch(e) {} })();

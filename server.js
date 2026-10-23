@@ -1,6 +1,6 @@
 /* =========================================================
    WORLD WAR - Server (النسخة النهائية الكاملة)
-   يشمل: المصادقة، السحب، الإدارة، الدعم الفني، الإشعارات الجماعية
+   المصادقة بأحرف إنجليزية وأرقام فقط + السحب + الإدارة + الدعم + الإشعارات
    ========================================================= */
 
 const express = require('express');
@@ -104,6 +104,11 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.static(__dirname));
 
+// تحقق: أحرف إنجليزية وأرقام فقط
+function isValidCredential(s) {
+  return typeof s === 'string' && /^[A-Za-z0-9]+$/.test(s);
+}
+
 function logActivity(userId, userName, action, details, req) {
   try {
     const ip = req ? (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '') : '';
@@ -168,7 +173,13 @@ app.post('/api/register', async (req, res) => {
   try {
     const name = String(req.body.name || '').trim();
     const password = String(req.body.password || '');
+
     if (!name || !password) return res.status(400).json({ error: 'الاسم وكلمة المرور مطلوبان' });
+    if (!isValidCredential(name)) return res.status(400).json({ error: 'اسم المستخدم يجب أن يحتوي على أحرف إنجليزية وأرقام فقط' });
+    if (!isValidCredential(password)) return res.status(400).json({ error: 'كلمة المرور يجب أن تحتوي على أحرف إنجليزية وأرقام فقط' });
+    if (name.length < 3 || name.length > 30) return res.status(400).json({ error: 'اسم المستخدم يجب أن يكون بين 3 و30 حرفاً' });
+    if (password.length < 6 || password.length > 60) return res.status(400).json({ error: 'كلمة المرور يجب أن تكون بين 6 و60 حرفاً' });
+
     const exists = db.prepare('SELECT id FROM users WHERE name = ?').get(name);
     if (exists) return res.status(409).json({ error: 'هذا الاسم مستخدم مسبقاً' });
 
@@ -184,6 +195,13 @@ app.post('/api/login', async (req, res) => {
   try {
     const name = String(req.body.name || '').trim();
     const password = String(req.body.password || '');
+
+    if (!name || !password) return res.status(400).json({ error: 'الاسم وكلمة المرور مطلوبان' });
+    if (!isValidCredential(name) || !isValidCredential(password)) {
+      logActivity(null, name, 'login_fail', 'محاولة دخول بصيغة غير مسموحة', req);
+      return res.status(401).json({ error: 'البيانات خاطئة' });
+    }
+
     const user = db.prepare('SELECT * FROM users WHERE name = ?').get(name);
     if (!user || !(await bcrypt.compare(password, user.password))) {
       logActivity(user ? user.id : null, name, 'login_fail', 'محاولة دخول فاشلة', req);
@@ -518,6 +536,7 @@ app.post('/api/admin/support/tickets/:id/reply', auth, isAdmin, adminAuth, (req,
     const ticket = db.prepare('SELECT * FROM support_tickets WHERE id = ?').get(req.params.id);
     if (!ticket) return res.status(404).json({ error: 'غير موجود' });
     if (ticket.status !== 'open') return res.status(400).json({ error: 'التذكرة مغلقة' });
+    // ⚠️ إخفاء اسم الآدمن الحقيقي عن المستخدم — يُسجَّل كـ "الدعم" فقط
     db.prepare("INSERT INTO support_messages (ticket_id, sender_role, sender_name, body) VALUES (?, 'admin', ?, ?)")
       .run(ticket.id, 'الدعم', body);
     db.prepare('UPDATE support_tickets SET updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(ticket.id);

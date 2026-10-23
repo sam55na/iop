@@ -328,14 +328,26 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
       <div class="tab-slider"></div>
     </div>
     <form id="loginForm" class="auth-form active">
-      <div class="input-group"><input type="text" id="loginName" placeholder=" " required><label>الاسم الأول والثاني</label></div>
-      <div class="input-group"><input type="password" id="loginPassword" placeholder=" " required><label>كلمة المرور</label></div>
+      <div class="input-group">
+        <input type="text" id="loginName" placeholder=" " required pattern="[A-Za-z0-9]+" maxlength="30" title="أحرف إنجليزية وأرقام فقط" autocomplete="username">
+        <label>الاسم الأول والثاني</label>
+      </div>
+      <div class="input-group">
+        <input type="password" id="loginPassword" placeholder=" " required pattern="[A-Za-z0-9]+" maxlength="60" title="أحرف إنجليزية وأرقام فقط" autocomplete="current-password">
+        <label>كلمة المرور</label>
+      </div>
       <button type="submit" class="btn-primary">دخول</button>
       <p class="switch-text">ليس لديك حساب؟ <a data-tab="register">أنشئ حساباً</a></p>
     </form>
     <form id="registerForm" class="auth-form">
-      <div class="input-group"><input type="text" id="regName" placeholder=" " required><label>الاسم الأول والثاني</label></div>
-      <div class="input-group"><input type="password" id="regPassword" placeholder=" " required minlength="6"><label>كلمة المرور</label></div>
+      <div class="input-group">
+        <input type="text" id="regName" placeholder=" " required pattern="[A-Za-z0-9]+" maxlength="30" minlength="3" title="أحرف إنجليزية وأرقام فقط" autocomplete="username">
+        <label>الاسم الأول والثاني</label>
+      </div>
+      <div class="input-group">
+        <input type="password" id="regPassword" placeholder=" " required pattern="[A-Za-z0-9]+" maxlength="60" minlength="6" title="أحرف إنجليزية وأرقام فقط" autocomplete="new-password">
+        <label>كلمة المرور</label>
+      </div>
       <button type="submit" class="btn-primary">إنشاء الحساب</button>
       <p class="switch-text">لديك حساب؟ <a data-tab="login">سجل الدخول</a></p>
     </form>
@@ -623,6 +635,27 @@ function copyText(txt, btn){
     if(btn){ const old = btn.textContent; btn.textContent = 'تم النسخ'; setTimeout(()=>btn.textContent=old, 1500); }
   }).catch(()=>showToast('فشل النسخ', 'error'));
 }
+function isValidCredentialJS(s){ return /^[A-Za-z0-9]+$/.test(s); }
+
+/* ====================== تنظيف فوري لحقول الإدخال ====================== */
+['loginName','loginPassword','regName','regPassword'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('input', e => {
+    const cleaned = e.target.value.replace(/[^A-Za-z0-9]/g, '');
+    if (cleaned !== e.target.value) e.target.value = cleaned;
+  });
+  el.addEventListener('paste', e => {
+    const text = (e.clipboardData || window.clipboardData).getData('text');
+    if (/[^A-Za-z0-9]/.test(text)) {
+      e.preventDefault();
+      const cleaned = text.replace(/[^A-Za-z0-9]/g, '');
+      const start = el.selectionStart, end = el.selectionEnd;
+      el.value = el.value.slice(0, start) + cleaned + el.value.slice(end);
+      showToast('تم إزالة الرموز غير المسموحة تلقائياً', 'info', 2000);
+    }
+  });
+});
 
 /* ====================== التبويبات (Login) ====================== */
 $$('.tab, [data-tab]').forEach(el => {
@@ -643,6 +676,10 @@ $('#loginForm').addEventListener('submit', async e => {
   const name = $('#loginName').value.trim();
   const password = $('#loginPassword').value;
   if (!name || !password) { showToast('يرجى إدخال جميع البيانات', 'error'); return; }
+  if (!isValidCredentialJS(name) || !isValidCredentialJS(password)) {
+    showToast('الأحرف الإنجليزية والأرقام فقط مسموحة', 'error');
+    return;
+  }
   try {
     await api('/api/login', { method:'POST', body: JSON.stringify({ name, password }) });
     showToast('تم تسجيل الدخول بنجاح', 'success');
@@ -655,6 +692,11 @@ $('#registerForm').addEventListener('submit', async e => {
   const name = $('#regName').value.trim();
   const password = $('#regPassword').value;
   if (!name || !password) { showToast('يرجى إدخال جميع البيانات', 'error'); return; }
+  if (!isValidCredentialJS(name) || !isValidCredentialJS(password)) {
+    showToast('الأحرف الإنجليزية والأرقام فقط مسموحة', 'error');
+    return;
+  }
+  if (name.length < 3) { showToast('اسم المستخدم 3 أحرف على الأقل', 'error'); return; }
   if (password.length < 6) { showToast('كلمة المرور 6 أحرف على الأقل', 'error'); return; }
   try {
     await api('/api/register', { method:'POST', body: JSON.stringify({ name, password }) });

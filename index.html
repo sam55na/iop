@@ -100,12 +100,72 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
 @media (max-width: 350px) {
   .action-btn { padding: 12px 5px; font-size: 12px; }
 }
+
+/* ====================== نظام الإشعارات (Toast) ====================== */
+.toast-container {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+  width: calc(100% - 40px);
+  max-width: 420px;
+}
+
+.toast {
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  color: #fff;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 10px 30px rgba(0,0,0,.6);
+  animation: toastIn .4s cubic-bezier(.2,.9,.3,1.2) forwards;
+  pointer-events: auto;
+  text-align: center;
+  border: 1px solid transparent;
+  word-wrap: break-word;
+}
+
+.toast.success {
+  background: rgba(34, 197, 94, .15);
+  border-color: rgba(34, 197, 94, .5);
+  color: #4ade80;
+  box-shadow: 0 10px 30px rgba(0,0,0,.6), 0 0 20px rgba(34, 197, 94, .3);
+}
+
+.toast.error {
+  background: rgba(255, 80, 80, .15);
+  border-color: rgba(255, 80, 80, .5);
+  color: #ff6b6b;
+  box-shadow: 0 10px 30px rgba(0,0,0,.6), 0 0 20px rgba(255, 80, 80, .3);
+}
+
+.toast.hide {
+  animation: toastOut .4s ease forwards;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(-20px) scale(.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes toastOut {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to   { opacity: 0; transform: translateY(-20px) scale(.95); }
+}
 </style>
 </head>
 <body>
 
 <div class="bg-blobs"><span></span><span></span><span></span></div>
 <div class="grid-overlay"></div>
+
+<div class="toast-container" id="toastContainer"></div>
 
 <div class="auth-screen" id="authScreen">
   <div class="auth-card">
@@ -164,6 +224,21 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
 const $ = (s) => document.querySelector(s);
 let currentUser = null;
 
+/* ====================== نظام الإشعارات ====================== */
+function showToast(message, type = 'success', duration = 3000) {
+  const container = $('#toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.textContent = message;
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.classList.add('hide');
+    toast.addEventListener('animationend', () => toast.remove(), { once: true });
+  }, duration);
+}
+
+/* ====================== API Helper ====================== */
 async function api(url, options={}) {
   const res = await fetch(url, { headers: {'Content-Type':'application/json'}, credentials:'include', ...options });
   const data = await res.json().catch(()=>({}));
@@ -171,6 +246,7 @@ async function api(url, options={}) {
   return data;
 }
 
+/* ====================== التبويبات ====================== */
 document.querySelectorAll('.tab, [data-tab]').forEach(el => {
   if (el.classList.contains('tab') || el.tagName === 'A'){
     el.addEventListener('click', e => {
@@ -183,41 +259,87 @@ document.querySelectorAll('.tab, [data-tab]').forEach(el => {
   }
 });
 
+/* ====================== تسجيل الدخول ====================== */
 $('#loginForm').addEventListener('submit', async e => {
   e.preventDefault();
-  try { await api('/api/login', { method:'POST', body: JSON.stringify({ name: $('#loginName').value.trim(), password: $('#loginPassword').value }) }); await enterDashboard(); } catch(err){ alert(err.message); }
+  const name = $('#loginName').value.trim();
+  const password = $('#loginPassword').value;
+
+  if (!name || !password) {
+    showToast('يرجى إدخال جميع البيانات', 'error');
+    return;
+  }
+
+  try {
+    await api('/api/login', { method:'POST', body: JSON.stringify({ name, password }) });
+    showToast('تم تسجيل الدخول بنجاح', 'success');
+    setTimeout(() => enterDashboard(), 600);
+  } catch(err){
+    showToast(err.message || 'البيانات خاطئة', 'error');
+  }
 });
 
+/* ====================== إنشاء حساب ====================== */
 $('#registerForm').addEventListener('submit', async e => {
   e.preventDefault();
+  const name = $('#regName').value.trim();
+  const password = $('#regPassword').value;
+
+  if (!name || !password) {
+    showToast('يرجى إدخال جميع البيانات', 'error');
+    return;
+  }
+  if (password.length < 6) {
+    showToast('كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'error');
+    return;
+  }
+
   try {
-    const name = $('#regName').value.trim(), password = $('#regPassword').value;
     await api('/api/register', { method:'POST', body: JSON.stringify({ name, password }) });
     await api('/api/login', { method:'POST', body: JSON.stringify({ name, password }) });
-    await enterDashboard();
-  } catch(err){ alert(err.message); }
+    showToast('تم إنشاء الحساب وتسجيل الدخول بنجاح', 'success');
+    setTimeout(() => enterDashboard(), 600);
+  } catch(err){
+    showToast(err.message || 'فشل إنشاء الحساب', 'error');
+  }
 });
 
-$('#logoutBtn').addEventListener('click', async () => { await api('/api/logout', {method:'POST'}); location.reload(); });
+/* ====================== خروج ====================== */
+$('#logoutBtn').addEventListener('click', async () => {
+  try {
+    await api('/api/logout', {method:'POST'});
+    showToast('تم تسجيل الخروج بنجاح', 'success');
+    setTimeout(() => location.reload(), 800);
+  } catch(err) {
+    showToast('حدث خطأ أثناء تسجيل الخروج', 'error');
+  }
+});
 
+/* ====================== لوحة التحكم ====================== */
 async function enterDashboard() {
-  const { user } = await api('/api/me');
-  currentUser = user;
-  $('#avatar').textContent = currentUser.name.charAt(0).toUpperCase();
-  $('#balance').textContent = Number(currentUser.balance).toFixed(2);
+  try {
+    const { user } = await api('/api/me');
+    currentUser = user;
+    $('#avatar').textContent = currentUser.name.charAt(0).toUpperCase();
+    $('#balance').textContent = Number(currentUser.balance).toFixed(2);
 
-  $('#authScreen').style.display = 'none';
-  $('#dashboard').classList.add('active');
-}
-
-function doAction(type) {
-  if (type === 'deposit') {
-    alert('ميزة الإيداع قيد التطوير');
-  } else if (type === 'withdraw') {
-    alert('ميزة السحب قيد التطوير');
+    $('#authScreen').style.display = 'none';
+    $('#dashboard').classList.add('active');
+  } catch(err) {
+    /* إذا لم يكن مسجلاً، ابقَ في شاشة الدخول */
   }
 }
 
+/* ====================== أزرار الإيداع والسحب ====================== */
+function doAction(type) {
+  if (type === 'deposit') {
+    showToast('ميزة الإيداع قيد التطوير', 'error');
+  } else if (type === 'withdraw') {
+    showToast('ميزة السحب قيد التطوير', 'error');
+  }
+}
+
+/* ====================== التهيئة ====================== */
 (async () => { try { await enterDashboard(); } catch(e) {} })();
 </script>
 </body>

@@ -194,7 +194,7 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
 
 .empty-state { text-align: center; padding: 30px 15px; color: #8892b0; font-size: 13px; }
 
-/* Detail sections in log modal */
+/* Detail sections */
 .detail-row { padding: 10px; margin-bottom: 6px; background: rgba(255,255,255,.02); border-radius: 8px; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 13px; }
 .detail-row .k { color: #8892b0; }
 .detail-row .v { color: #fff; font-weight: 700; word-break: break-word; text-align: left; max-width: 60%; }
@@ -286,15 +286,15 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
         <label>المبلغ المطلوب سحبه</label>
       </div>
       <div id="wdAmountInfo" style="font-size:12px;color:#8892b0;margin-bottom:15px;"></div>
-      <button class="btn-primary" onclick="wdGoStep3()">التالي</button>
+      <button class="btn-primary" style="width:100%;" onclick="wdGoStep3()">التالي</button>
     </div>
     <!-- Step 3: العنوان -->
     <div class="wd-step" id="wdStep3">
       <div class="input-group" style="margin-bottom:15px;">
-        <textarea id="wdAddress" placeholder=" "></textarea>
+        <textarea id="wdAddress" placeholder=" " autocomplete="off"></textarea>
         <label>عنوان المستخدم (المحفظة / الآيبان / ...)</label>
       </div>
-      <button class="btn-primary" onclick="wdGoStep4()">التالي</button>
+      <button class="btn-primary" style="width:100%;" onclick="wdGoStep4()">التالي</button>
     </div>
     <!-- Step 4: تأكيد -->
     <div class="wd-step" id="wdStep4">
@@ -305,6 +305,22 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
         <button class="btn-danger" style="flex:1;" onclick="closeModal('modalWithdraw')">إلغاء</button>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- Modal: كلمة مرور الإدارة -->
+<div class="modal-overlay" id="modalAdminPassword">
+  <div class="modal-content" style="max-width:420px;">
+    <div class="modal-header">
+      <div class="modal-title">دخول الإدارة</div>
+      <button class="close-modal" onclick="closeModal('modalAdminPassword')">X</button>
+    </div>
+    <p style="font-size:13px;color:#8892b0;margin-bottom:15px;">أدخل كلمة مرور الوصول إلى لوحة الإدارة.</p>
+    <div class="input-group" style="margin-bottom:15px;">
+      <input type="password" id="adminPasswordInput" placeholder=" " autocomplete="off">
+      <label>كلمة مرور الإدارة</label>
+    </div>
+    <button class="btn-primary" style="width:100%;" onclick="unlockAdmin()">دخول</button>
   </div>
 </div>
 
@@ -393,6 +409,7 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
 let currentUser = null;
+let adminToken = null; // توكن الإدارة بعد إدخال كلمة المرور
 
 /* ====================== Toast ====================== */
 function showToast(message, type = 'success', duration = 3000) {
@@ -414,6 +431,16 @@ async function api(url, options={}) {
   if (!res.ok) throw new Error(data.error || 'حدث خطأ');
   return data;
 }
+
+async function adminFetch(url, options = {}) {
+  if (!adminToken) throw new Error('جلسة الإدارة مغلقة، أعد فتح اللوحة');
+  const headers = { 'Content-Type': 'application/json', ...(options.headers || {}), 'X-Admin-Token': adminToken };
+  const res = await fetch(url, { ...options, headers, credentials: 'include' });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'خطأ');
+  return data;
+}
+
 function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function fmtDate(s){ if(!s) return '-'; try { return new Date(s.replace(' ', 'T') + 'Z').toLocaleString('ar-EG'); } catch(e){ return s; } }
 function fmtMoney(n){ return Number(n||0).toFixed(2); }
@@ -478,10 +505,9 @@ async function enterDashboard() {
     $('#balance').textContent = fmtMoney(currentUser.balance);
     $('#authScreen').style.display = 'none';
     $('#dashboard').classList.add('active');
-    // admin
     try {
-      const { isAdmin } = await api('/api/admin/check');
-      if (isAdmin) $('#adminBtn').style.display = 'inline-block';
+      const { isAdminCandidate } = await api('/api/admin/check');
+      if (isAdminCandidate) $('#adminBtn').style.display = 'inline-block';
     } catch(e){}
   } catch(err){}
 }
@@ -507,6 +533,9 @@ let wdState = { methods: [], method: null, amount: 0, address: '' };
 
 async function openWithdrawFlow() {
   wdState = { methods: [], method: null, amount: 0, address: '' };
+  $('#wdAddress').value = '';
+  $('#wdAmount').value = '';
+  $('#wdCooldownBox').innerHTML = '';
   wdGoStep(1);
   openModal('modalWithdraw');
   try {
@@ -528,12 +557,11 @@ async function openWithdrawFlow() {
         setTimeout(() => wdGoStep(2), 250);
       });
     });
-    // cooldown
     const st = await api('/api/withdraw/status');
     if (st.cooldownRemaining > 0) {
       const mins = Math.ceil(st.cooldownRemaining / 60000);
       $('#wdCooldownBox').innerHTML = `<div class="wd-cooldown">يمكنك إرسال طلب سحب جديد بعد ${mins} دقيقة</div>`;
-    } else { $('#wdCooldownBox').innerHTML = ''; }
+    }
   } catch(err){ showToast(err.message, 'error'); }
 }
 
@@ -543,6 +571,9 @@ function wdGoStep(n){
   if (n === 2 && wdState.method) {
     $('#wdAmountInfo').innerHTML = `أقل مبلغ: <b>${fmtMoney(wdState.method.min_amount)}</b> · العمولة: <b>${wdState.method.fee_percent}%</b>`;
     $('#wdAmount').value = '';
+  }
+  if (n === 3) {
+    $('#wdAddress').value = ''; // تصفير صريح - لا حفظ للعنوان
   }
   if (n === 4) {
     const amt = Number(wdState.amount);
@@ -576,7 +607,6 @@ function wdGoStep4(){
 
 async function wdSubmit(){
   try {
-    // إعادة تحقق من الرصيد قبل الإرسال
     await refreshMe();
     if (wdState.amount > currentUser.balance) { showToast('رصيدك غير كافٍ', 'error'); return; }
     const res = await api('/api/withdraw/request', { method:'POST', body: JSON.stringify({
@@ -588,10 +618,29 @@ async function wdSubmit(){
   } catch(err){ showToast(err.message, 'error'); }
 }
 
-/* ====================== Admin Panel ====================== */
-async function openAdminPanel(){
+/* ====================== Admin Unlock ====================== */
+function openAdminPanel() {
+  openModal('modalAdminPassword');
+  $('#adminPasswordInput').value = '';
+  setTimeout(() => $('#adminPasswordInput').focus(), 100);
+}
+
+async function unlockAdmin() {
+  const pwd = $('#adminPasswordInput').value;
+  if (!pwd) { showToast('أدخل كلمة المرور', 'error'); return; }
+  try {
+    const res = await api('/api/admin/unlock', { method: 'POST', body: JSON.stringify({ password: pwd }) });
+    adminToken = res.adminToken;
+    closeModal('modalAdminPassword');
+    showToast('تم فتح لوحة الإدارة', 'success');
+    await openRealAdminPanel();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+}
+
+async function openRealAdminPanel() {
   openModal('modalAdmin');
-  // reset tab
   $$('.admin-tab[data-atab]').forEach(t => t.classList.toggle('active', t.dataset.atab === 'logs'));
   $$('.admin-pane').forEach(p => p.classList.remove('active'));
   $('#pane-logs').classList.add('active');
@@ -613,7 +662,7 @@ $$('.admin-tab[data-atab]').forEach(el => {
 
 async function loadStats(){
   try {
-    const s = await api('/api/admin/overview');
+    const s = await adminFetch('/api/admin/overview');
     $('#statsGrid').innerHTML = `
       <div class="stat-card"><div class="num">${s.users}</div><div class="lbl">المستخدمون</div></div>
       <div class="stat-card"><div class="num">${fmtMoney(s.totalBalance)}</div><div class="lbl">إجمالي الأرصدة</div></div>
@@ -625,7 +674,7 @@ async function loadStats(){
 
 async function loadAdminLogs(){
   try {
-    const { logs } = await api('/api/admin/logs?limit=100');
+    const { logs } = await adminFetch('/api/admin/logs?limit=100');
     if (!logs.length) { $('#logsList').innerHTML = '<div class="empty-state">لا توجد حركات</div>'; return; }
     $('#logsList').innerHTML = logs.map(l => `
       <div class="log-item" onclick="openLogDetail(${l.id})">
@@ -641,7 +690,7 @@ async function loadAdminLogs(){
 
 async function openLogDetail(id){
   try {
-    const { log, user } = await api('/api/admin/logs/' + id);
+    const { log, user } = await adminFetch('/api/admin/logs/' + id);
     let html = `
       <div class="detail-row"><span class="k">المعرّف</span><span class="v">#${log.id}</span></div>
       <div class="detail-row"><span class="k">المستخدم</span><span class="v">${esc(log.user_name || 'زائر')}</span></div>
@@ -667,7 +716,7 @@ async function openLogDetail(id){
 /* ====================== Methods ====================== */
 async function loadMethods(){
   try {
-    const { methods } = await api('/api/admin/withdraw-methods');
+    const { methods } = await adminFetch('/api/admin/withdraw-methods');
     if (!methods.length) { $('#methodsList').innerHTML = '<div class="empty-state">لا توجد طرق</div>'; return; }
     $('#methodsList').innerHTML = methods.map(m => `
       <div class="method-card">
@@ -675,7 +724,7 @@ async function loadMethods(){
           <div class="m-name">${esc(m.name)}</div>
           <div class="m-meta">أقل حد: <span>${fmtMoney(m.min_amount)}</span> · العمولة: <span>${m.fee_percent}%</span></div>
         </div>
-        <button class="btn-danger btn-sm" onclick="deleteMethod(${m.id}, '${esc(m.name)}')">حذف</button>
+        <button class="btn-danger btn-sm" onclick="deleteMethod(${m.id}, '${esc(m.name).replace(/'/g,"\\'")}')">حذف</button>
       </div>
     `).join('');
   } catch(err){ $('#methodsList').innerHTML = '<div class="empty-state">خطأ</div>'; }
@@ -688,7 +737,7 @@ async function addWithdrawMethod(){
   if (!name) { showToast('أدخل اسم الطريقة', 'error'); return; }
   if (min_amount < 0 || fee_percent < 0 || fee_percent > 100) { showToast('قيم غير صالحة', 'error'); return; }
   try {
-    await api('/api/admin/withdraw-methods', { method:'POST', body: JSON.stringify({ name, min_amount, fee_percent }) });
+    await adminFetch('/api/admin/withdraw-methods', { method:'POST', body: JSON.stringify({ name, min_amount, fee_percent }) });
     showToast('تمت إضافة الطريقة', 'success');
     $('#newMethodName').value = ''; $('#newMethodMin').value = '0'; $('#newMethodFee').value = '0';
     await loadMethods();
@@ -698,7 +747,7 @@ async function addWithdrawMethod(){
 async function deleteMethod(id, name){
   if (!confirm(`حذف طريقة "${name}"؟`)) return;
   try {
-    await api('/api/admin/withdraw-methods/' + id, { method:'DELETE' });
+    await adminFetch('/api/admin/withdraw-methods/' + id, { method:'DELETE' });
     showToast('تم الحذف', 'success');
     await loadMethods();
   } catch(err){ showToast(err.message, 'error'); }
@@ -713,7 +762,7 @@ function setReqStatus(s, btn){
 }
 async function loadRequests(){
   try {
-    const { requests } = await api('/api/admin/withdraw-requests?status=' + reqStatus);
+    const { requests } = await adminFetch('/api/admin/withdraw-requests?status=' + reqStatus);
     if (!requests.length) { $('#requestsList').innerHTML = '<div class="empty-state">لا توجد طلبات</div>'; return; }
     $('#requestsList').innerHTML = requests.map(r => `
       <div class="wreq-card ${r.status}">
@@ -741,12 +790,12 @@ async function loadRequests(){
 }
 async function approveReq(id){
   if (!confirm('تأكيد الموافقة على الطلب؟')) return;
-  try { await api('/api/admin/withdraw-requests/'+id+'/approve', {method:'POST'}); showToast('تمت الموافقة', 'success'); loadRequests(); loadStats(); }
+  try { await adminFetch('/api/admin/withdraw-requests/'+id+'/approve', {method:'POST'}); showToast('تمت الموافقة', 'success'); loadRequests(); loadStats(); }
   catch(err){ showToast(err.message, 'error'); }
 }
 async function rejectReq(id){
   if (!confirm('تأكيد رفض الطلب وإعادة المبلغ للمستخدم؟')) return;
-  try { await api('/api/admin/withdraw-requests/'+id+'/reject', {method:'POST'}); showToast('تم الرفض وإعادة المبلغ', 'success'); loadRequests(); loadStats(); }
+  try { await adminFetch('/api/admin/withdraw-requests/'+id+'/reject', {method:'POST'}); showToast('تم الرفض وإعادة المبلغ', 'success'); loadRequests(); loadStats(); }
   catch(err){ showToast(err.message, 'error'); }
 }
 
@@ -754,7 +803,7 @@ async function rejectReq(id){
 async function loadAdminUsers(){
   try {
     const q = $('#userSearch').value.trim();
-    const { users } = await api('/api/admin/users?q=' + encodeURIComponent(q));
+    const { users } = await adminFetch('/api/admin/users?q=' + encodeURIComponent(q));
     if (!users.length) { $('#usersList').innerHTML = '<div class="empty-state">لا يوجد مستخدمون</div>'; return; }
     $('#usersList').innerHTML = users.map(u => `
       <div class="user-row">
@@ -763,7 +812,7 @@ async function loadAdminUsers(){
           <div class="u-meta">الرصيد: <b>${fmtMoney(u.balance)}</b> · مسجل: ${fmtDate(u.created_at)}</div>
         </div>
         <div class="u-actions">
-          <button class="btn-gold btn-sm" onclick="editBalance(${u.id}, '${esc(u.name)}', ${u.balance})">تعديل الرصيد</button>
+          <button class="btn-gold btn-sm" onclick="editBalance(${u.id}, '${esc(u.name).replace(/'/g,"\\'")}', ${u.balance})">تعديل الرصيد</button>
           <button class="btn-success btn-sm" onclick="viewUser(${u.id})">تفاصيل</button>
         </div>
       </div>
@@ -777,7 +826,7 @@ async function editBalance(id, name, current){
   const delta = Number(input);
   if (!Number.isFinite(delta) || delta === 0) { showToast('قيمة غير صالحة', 'error'); return; }
   try {
-    const res = await api('/api/admin/users/'+id+'/balance', { method:'POST', body: JSON.stringify({ delta }) });
+    const res = await adminFetch('/api/admin/users/'+id+'/balance', { method:'POST', body: JSON.stringify({ delta }) });
     showToast(`تم التعديل. الرصيد الجديد: ${fmtMoney(res.newBalance)}`, 'success');
     loadAdminUsers();
   } catch(err){ showToast(err.message, 'error'); }
@@ -785,7 +834,7 @@ async function editBalance(id, name, current){
 
 async function viewUser(id){
   try {
-    const { user, withdraws, logs } = await api('/api/admin/users/' + id);
+    const { user, withdraws, logs } = await adminFetch('/api/admin/users/' + id);
     let html = `
       <div style="background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.2);border-radius:12px;padding:15px;margin-bottom:15px;">
         <div class="detail-row"><span class="k">الاسم</span><span class="v">${esc(user.name)}</span></div>

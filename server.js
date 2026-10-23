@@ -1,5 +1,5 @@
 /* =========================================================
-   WORLD WAR - Server (مع نظام الإدارة الكامل)
+   WORLD WAR - Server (نسخة آمنة مع كلمة مرور إدارة)
    ========================================================= */
 
 const express = require('express');
@@ -16,7 +16,19 @@ const JWT_SECRET = process.env.JWT_SECRET || 'worldwar_super_secret_change_me';
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'database.db');
 const IS_PROD = process.env.NODE_ENV === 'production';
 const ADMIN_NAME = 'sam55namsam55namsam55nam';
-const WITHDRAW_COOLDOWN_MS = 10 * 60 * 1000; // 10 دقائق
+const WITHDRAW_COOLDOWN_MS = 10 * 60 * 1000;
+
+// ⚠️ كلمة مرور الوصول للإدارة - من متغير البيئة (إلزامية)
+const ADMIN_ACCESS_PASSWORD = process.env.ADMIN_ACCESS_PASSWORD;
+if (!ADMIN_ACCESS_PASSWORD || ADMIN_ACCESS_PASSWORD.length < 8) {
+  console.error('❌ [CRITICAL] ADMIN_ACCESS_PASSWORD غير معرف أو أقل من 8 أحرف!');
+  console.error('   عيّن متغير البيئة ADMIN_ACCESS_PASSWORD بقيمة قوية قبل التشغيل.');
+  process.exit(1);
+}
+
+// تشفير كلمة مرور الإدارة في الذاكرة فقط (لا تُخزَّن نصية أبداً)
+const ADMIN_ACCESS_HASH = bcrypt.hashSync(ADMIN_ACCESS_PASSWORD, 10);
+console.log('✅ [Security] تم تحميل كلمة مرور الإدارة وتشفيرها في الذاكرة.');
 
 // --- تهيئة قاعدة البيانات ---
 const dbDir = path.dirname(DB_PATH);
@@ -50,6 +62,10 @@ db.exec(`
     status TEXT NOT NULL DEFAULT 'pending',
     processed_by TEXT, processed_at DATETIME,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+  CREATE TABLE IF NOT EXISTS admin_access_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, user_name TEXT,
+    success INTEGER NOT NULL, ip TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 `);
 
@@ -86,6 +102,28 @@ function isAdmin(req, res, next) {
   if (req.user.role === 'admin' && req.user.name === ADMIN_NAME) return next();
   return res.status(403).json({ error: 'مخصص للإدارة' });
 }
+
+// حد أقصى لمحاولات كلمة مرور الإدارة: 5 محاولات خلال 15 دقيقة
+const adminAttempts = new Map(); // userId -> { count, resetAt }
+function checkAdminRateLimit(userId) {
+  const now = Date.now();
+  const rec = adminAttempts.get(userId);
+  if (!rec || now > rec.resetAt) {
+    adminAttempts.set(userId, { count: 0, resetAt: now + 15 * 60 * 1000 });
+    return { ok: true };
+  }
+  if (rec.count >= 5) {
+    return { ok: false, retryAfter: Math.ceil((rec.resetAt - now) / 1000) };
+  }
+  return { ok: true };
+}
+function bumpAdminAttempt(userId) {
+  const now = Date.now();
+  const rec = adminAttempts.get(userId);
+  if (!rec || now > rec.resetAt) adminAttempts.set(userId, { count: 1, resetAt: now + 15 * 60 * 1000 });
+  else rec.count += 1;
+}
+function clearAdminAttempts(userId) { adminAttempts.delete(userId); }
 
 // =========================================================
 // 🔑 المصادقة
@@ -130,6 +168,70 @@ app.post('/api/logout', auth, (req, res) => {
 app.get('/api/me', auth, (req, res) => res.json({ user: req.user }));
 
 // =========================================================
+// 🛡️ التحقق من كلمة مرور الإدارة
+// =========================================================
+app.get('/api/admin/check', auth, (req, res) => {
+  // فقط يُخبر الواجهة إذا كان المستخدم مؤهلاً أصلاً (بدون كلمة المرور)
+  res.json({ isAdminCandidate: req.user.role === 'admin' && req.user.name === ADMIN_NAME });
+});
+
+app.post('/api/admin/unlock', auth, async (req, res) => {
+  try {
+    // يجب أن يكون المستخدم آدمن أولاً
+    if (!(req.user.role === 'admin' && req.user.name === ADMIN_NAME)) {
+      logActivity(req.user.id, req.user.name, 'admin_unlock_forbidden', 'محاولة وصول إدارة غير مصرح بها', req);
+      return res.status(403).json({ error: 'غير مصرح' });
+    }
+
+    // Rate limit
+    const rl = checkAdminRateLimit(req.user.id);
+    if (!rl.ok) {
+      db.prepare('INSERT INTO admin_access_log (user_id, user_name, success, ip) VALUES (?, ?, 0, ?)')
+        .run(req.user.id, req.user.name, String(req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim());
+      return res.status(429).json({ error: `محاولات كثيرة، انتظر ${Math.ceil(rl.retryAfter/60)} دقيقة` });
+    }
+
+    const pwd = String(req.body.password || '');
+    if (!pwd) return res.status(400).json({ error: 'أدخل كلمة المرور' });
+
+    const ok = await bcrypt.compare(pwd, ADMIN_ACCESS_HASH);
+    const ip = String(req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
+
+    if (!ok) {
+      bumpAdminAttempt(req.user.id);
+      db.prepare('INSERT INTO admin_access_log (user_id, user_name, success, ip) VALUES (?, ?, 0, ?)')
+        .run(req.user.id, req.user.name, ip);
+      logActivity(req.user.id, req.user.name, 'admin_unlock_fail', 'كلمة مرور إدارة خاطئة', req);
+      return res.status(401).json({ error: 'كلمة المرور خاطئة' });
+    }
+
+    clearAdminAttempts(req.user.id);
+    db.prepare('INSERT INTO admin_access_log (user_id, user_name, success, ip) VALUES (?, ?, 1, ?)')
+      .run(req.user.id, req.user.name, ip);
+    logActivity(req.user.id, req.user.name, 'admin_unlock_ok', 'فتح لوحة الإدارة', req);
+
+    // توكن إدارة قصير العمر
+    const adminToken = jwt.sign({ id: req.user.id, scope: 'admin' }, JWT_SECRET, { expiresIn: '2h' });
+    res.json({ ok: true, adminToken });
+  } catch (err) {
+    res.status(500).json({ error: 'خطأ' });
+  }
+});
+
+// Middleware للتحقق من توكن الإدارة
+function adminAuth(req, res, next) {
+  const t = req.headers['x-admin-token'];
+  if (!t) return res.status(401).json({ error: 'انتهت جلسة الإدارة، أعد إدخال كلمة المرور' });
+  try {
+    const p = jwt.verify(t, JWT_SECRET);
+    if (p.scope !== 'admin' || p.id !== req.user.id) {
+      return res.status(401).json({ error: 'توكن إدارة غير صالح' });
+    }
+    next();
+  } catch { return res.status(401).json({ error: 'انتهت جلسة الإدارة، أعد إدخال كلمة المرور' }); }
+}
+
+// =========================================================
 // 💸 المستخدم - طرق السحب
 // =========================================================
 app.get('/api/withdraw-methods', auth, (req, res) => {
@@ -154,7 +256,6 @@ app.post('/api/withdraw/request', auth, (req, res) => {
     const method = db.prepare('SELECT * FROM withdraw_methods WHERE id = ?').get(method_id);
     if (!method) return res.status(400).json({ error: 'طريقة السحب غير موجودة' });
 
-    // cooldown
     const u = db.prepare('SELECT last_withdraw_at, balance FROM users WHERE id = ?').get(req.user.id);
     if (u.last_withdraw_at) {
       const elapsed = Date.now() - new Date(u.last_withdraw_at).getTime();
@@ -172,7 +273,6 @@ app.post('/api/withdraw/request', auth, (req, res) => {
     const balanceBefore = u.balance;
     const balanceAfter = +(u.balance - amt).toFixed(2);
 
-    // خصم الرصيد
     db.prepare('UPDATE users SET balance = ?, last_withdraw_at = CURRENT_TIMESTAMP WHERE id = ?').run(balanceAfter, req.user.id);
 
     const info = db.prepare(`INSERT INTO withdraw_requests
@@ -186,14 +286,9 @@ app.post('/api/withdraw/request', auth, (req, res) => {
 });
 
 // =========================================================
-// 🛡️ APIs الإدارة
+// 🛡️ APIs الإدارة (محمية بـ adminAuth)
 // =========================================================
-app.get('/api/admin/check', auth, (req, res) => {
-  res.json({ isAdmin: req.user.role === 'admin' && req.user.name === ADMIN_NAME });
-});
-
-// لوحة الإدارة الرئيسية
-app.get('/api/admin/overview', auth, isAdmin, (req, res) => {
+app.get('/api/admin/overview', auth, isAdmin, adminAuth, (req, res) => {
   const stats = {
     users: db.prepare('SELECT COUNT(*) as c FROM users').get().c,
     totalBalance: db.prepare('SELECT COALESCE(SUM(balance),0) as s FROM users').get().s,
@@ -203,14 +298,13 @@ app.get('/api/admin/overview', auth, isAdmin, (req, res) => {
   res.json(stats);
 });
 
-// سجل النشاط الحي
-app.get('/api/admin/logs', auth, isAdmin, (req, res) => {
+app.get('/api/admin/logs', auth, isAdmin, adminAuth, (req, res) => {
   const limit = Math.min(200, Number(req.query.limit) || 100);
   const logs = db.prepare('SELECT * FROM activity_logs ORDER BY id DESC LIMIT ?').all(limit);
   res.json({ logs });
 });
 
-app.get('/api/admin/logs/:id', auth, isAdmin, (req, res) => {
+app.get('/api/admin/logs/:id', auth, isAdmin, adminAuth, (req, res) => {
   const log = db.prepare('SELECT * FROM activity_logs WHERE id = ?').get(req.params.id);
   if (!log) return res.status(404).json({ error: 'غير موجود' });
   let user = null;
@@ -218,11 +312,10 @@ app.get('/api/admin/logs/:id', auth, isAdmin, (req, res) => {
   res.json({ log, user });
 });
 
-// طرق السحب
-app.get('/api/admin/withdraw-methods', auth, isAdmin, (req, res) => {
+app.get('/api/admin/withdraw-methods', auth, isAdmin, adminAuth, (req, res) => {
   res.json({ methods: db.prepare('SELECT * FROM withdraw_methods ORDER BY id DESC').all() });
 });
-app.post('/api/admin/withdraw-methods', auth, isAdmin, (req, res) => {
+app.post('/api/admin/withdraw-methods', auth, isAdmin, adminAuth, (req, res) => {
   try {
     const { name, min_amount, fee_percent } = req.body;
     if (!name || !String(name).trim()) return res.status(400).json({ error: 'اسم الطريقة مطلوب' });
@@ -235,7 +328,7 @@ app.post('/api/admin/withdraw-methods', auth, isAdmin, (req, res) => {
     res.json({ ok: true, id: info.lastInsertRowid });
   } catch (err) { res.status(500).json({ error: 'خطأ' }); }
 });
-app.delete('/api/admin/withdraw-methods/:id', auth, isAdmin, (req, res) => {
+app.delete('/api/admin/withdraw-methods/:id', auth, isAdmin, adminAuth, (req, res) => {
   try {
     const m = db.prepare('SELECT * FROM withdraw_methods WHERE id = ?').get(req.params.id);
     if (!m) return res.status(404).json({ error: 'غير موجود' });
@@ -245,8 +338,7 @@ app.delete('/api/admin/withdraw-methods/:id', auth, isAdmin, (req, res) => {
   } catch (err) { res.status(500).json({ error: 'خطأ' }); }
 });
 
-// طلبات السحب
-app.get('/api/admin/withdraw-requests', auth, isAdmin, (req, res) => {
+app.get('/api/admin/withdraw-requests', auth, isAdmin, adminAuth, (req, res) => {
   const status = req.query.status || 'pending';
   let list;
   if (status === 'all') list = db.prepare('SELECT * FROM withdraw_requests ORDER BY id DESC LIMIT 200').all();
@@ -254,14 +346,14 @@ app.get('/api/admin/withdraw-requests', auth, isAdmin, (req, res) => {
   res.json({ requests: list });
 });
 
-app.get('/api/admin/withdraw-requests/:id', auth, isAdmin, (req, res) => {
+app.get('/api/admin/withdraw-requests/:id', auth, isAdmin, adminAuth, (req, res) => {
   const r = db.prepare('SELECT * FROM withdraw_requests WHERE id = ?').get(req.params.id);
   if (!r) return res.status(404).json({ error: 'غير موجود' });
-  const user = db.prepare('SELECT id, name, balance, role, created_at, password FROM users WHERE id = ?').get(r.user_id);
-  res.json({ request: r, user: user ? { ...user, password: undefined } : null });
+  const user = db.prepare('SELECT id, name, balance, role, created_at FROM users WHERE id = ?').get(r.user_id);
+  res.json({ request: r, user });
 });
 
-app.post('/api/admin/withdraw-requests/:id/approve', auth, isAdmin, (req, res) => {
+app.post('/api/admin/withdraw-requests/:id/approve', auth, isAdmin, adminAuth, (req, res) => {
   try {
     const r = db.prepare('SELECT * FROM withdraw_requests WHERE id = ?').get(req.params.id);
     if (!r) return res.status(404).json({ error: 'غير موجود' });
@@ -273,12 +365,11 @@ app.post('/api/admin/withdraw-requests/:id/approve', auth, isAdmin, (req, res) =
   } catch (err) { res.status(500).json({ error: 'خطأ' }); }
 });
 
-app.post('/api/admin/withdraw-requests/:id/reject', auth, isAdmin, (req, res) => {
+app.post('/api/admin/withdraw-requests/:id/reject', auth, isAdmin, adminAuth, (req, res) => {
   try {
     const r = db.prepare('SELECT * FROM withdraw_requests WHERE id = ?').get(req.params.id);
     if (!r) return res.status(404).json({ error: 'غير موجود' });
     if (r.status !== 'pending') return res.status(400).json({ error: 'تمت معالجته مسبقاً' });
-    // إعادة المبلغ
     db.prepare('UPDATE users SET balance = balance + ? WHERE id = ?').run(r.amount, r.user_id);
     db.prepare("UPDATE withdraw_requests SET status='rejected', processed_by=?, processed_at=CURRENT_TIMESTAMP WHERE id=?")
       .run(req.user.name, r.id);
@@ -287,19 +378,15 @@ app.post('/api/admin/withdraw-requests/:id/reject', auth, isAdmin, (req, res) =>
   } catch (err) { res.status(500).json({ error: 'خطأ' }); }
 });
 
-// المستخدمون
-app.get('/api/admin/users', auth, isAdmin, (req, res) => {
+app.get('/api/admin/users', auth, isAdmin, adminAuth, (req, res) => {
   const q = String(req.query.q || '').trim();
   let list;
-  if (q) {
-    list = db.prepare('SELECT id, name, balance, role, created_at, last_withdraw_at FROM users WHERE name LIKE ? ORDER BY id DESC LIMIT 200').all(`%${q}%`);
-  } else {
-    list = db.prepare('SELECT id, name, balance, role, created_at, last_withdraw_at FROM users ORDER BY id DESC LIMIT 200').all();
-  }
+  if (q) list = db.prepare('SELECT id, name, balance, role, created_at, last_withdraw_at FROM users WHERE name LIKE ? ORDER BY id DESC LIMIT 200').all(`%${q}%`);
+  else list = db.prepare('SELECT id, name, balance, role, created_at, last_withdraw_at FROM users ORDER BY id DESC LIMIT 200').all();
   res.json({ users: list });
 });
 
-app.get('/api/admin/users/:id', auth, isAdmin, (req, res) => {
+app.get('/api/admin/users/:id', auth, isAdmin, adminAuth, (req, res) => {
   const u = db.prepare('SELECT id, name, balance, role, created_at, last_withdraw_at FROM users WHERE id = ?').get(req.params.id);
   if (!u) return res.status(404).json({ error: 'غير موجود' });
   const withdraws = db.prepare('SELECT * FROM withdraw_requests WHERE user_id = ? ORDER BY id DESC LIMIT 50').all(u.id);
@@ -307,7 +394,7 @@ app.get('/api/admin/users/:id', auth, isAdmin, (req, res) => {
   res.json({ user: u, withdraws, logs });
 });
 
-app.post('/api/admin/users/:id/balance', auth, isAdmin, (req, res) => {
+app.post('/api/admin/users/:id/balance', auth, isAdmin, adminAuth, (req, res) => {
   try {
     const delta = Number(req.body.delta);
     if (!Number.isFinite(delta)) return res.status(400).json({ error: 'قيمة غير صالحة' });

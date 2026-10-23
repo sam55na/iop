@@ -519,7 +519,7 @@ app.post('/api/admin/support/tickets/:id/reply', auth, isAdmin, adminAuth, (req,
     if (!ticket) return res.status(404).json({ error: 'غير موجود' });
     if (ticket.status !== 'open') return res.status(400).json({ error: 'التذكرة مغلقة' });
     db.prepare("INSERT INTO support_messages (ticket_id, sender_role, sender_name, body) VALUES (?, 'admin', ?, ?)")
-      .run(ticket.id, req.user.name, body);
+      .run(ticket.id, 'الدعم', body);
     db.prepare('UPDATE support_tickets SET updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(ticket.id);
     logActivity(req.user.id, req.user.name, 'admin_support_reply', `رد على تذكرة #${ticket.id}`, req);
     res.json({ ok: true });

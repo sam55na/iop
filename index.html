@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ICHANCY WEBSITE</title>
+<title>World War</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
 /* ====================== الأساسيات ====================== */
@@ -86,7 +86,6 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
 .action-box { background: rgba(15,18,35,.6); backdrop-filter: blur(20px); border:1px solid rgba(255,255,255,.1); border-radius:20px; padding:20px 15px; display:flex; flex-direction:column; gap:15px; transition: all .4s; box-shadow: inset 0 0 20px rgba(255,255,255,.02), 0 10px 20px rgba(0,0,0,.3); }
 .action-box:hover { border-color: rgba(0,212,255,.3); transform: translateY(-3px); box-shadow: 0 15px 30px rgba(0,0,0,.5), 0 0 20px rgba(0,212,255,.1); }
 
-.action-title { color:#e6ecff; font-weight:700; font-size: 14px; display: flex; align-items: center; gap: 8px; }
 .action-box .btns { display:flex; flex-direction:column; gap:12px; flex: 1; }
 
 .action-btn { width: 100%; border:none; border-radius:12px; padding:15px 10px; font-weight:700; font-size:14px; cursor:pointer; transition: all .3s; display:flex; align-items:center; justify-content:center; gap:8px; position: relative; overflow: hidden; }
@@ -100,7 +99,6 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
 
 @media (max-width: 350px) {
   .action-btn { padding: 12px 5px; font-size: 12px; }
-  .action-title { font-size: 12px; }
 }
 </style>
 </head>
@@ -111,7 +109,7 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
 
 <div class="auth-screen" id="authScreen">
   <div class="auth-card">
-    <div class="logo"><h1>Service IChancy</h1></div>
+    <div class="logo"><h1>World War</h1></div>
     <div class="tabs" data-active="login">
       <button class="tab active" data-tab="login">تسجيل الدخول</button>
       <button class="tab" data-tab="register">إنشاء حساب</button>
@@ -134,7 +132,7 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
 
 <div class="dashboard" id="dashboard">
   <div class="topbar">
-    <div class="brand">Service IChancy</div>
+    <div class="brand">World War</div>
     <div class="user-area">
       <div class="user-chip">
         <div class="avatar" id="avatar">U</div>
@@ -153,7 +151,6 @@ body { background:#05060f; color:#e6ecff; position:relative; display: flex; flex
   <div class="actions-zone">
     <div class="actions-rect">
       <div class="action-box">
-        <div class="action-title">💰 محفظتي</div>
         <div class="btns">
           <button class="action-btn deposit" onclick="doAction('deposit')"><span>إيداع</span></button>
           <button class="action-btn withdraw" onclick="doAction('withdraw')"><span>سحب</span></button>
